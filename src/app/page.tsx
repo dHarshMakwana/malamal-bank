@@ -13,8 +13,8 @@ const Home = () => {
         <Image alt="" src={logo} width={320} height={320} />
       </div>
       <div className={s.btnGroup}>
-        <Link href="/signin">
-          <div className="btn-primary">Sign In</div>
+        <Link href="/signup">
+          <div className="btn-primary">Sign Up</div>
         </Link>
         <Link href="/login">
           <div className="btn-secondary">Log In</div>
