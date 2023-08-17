@@ -5,10 +5,14 @@ import Image from "next/image";
 import logo from "/public/logo.png";
 import Input from "@/components/Input";
 import Link from "next/link";
+import facebook from "/public/facebook.svg";
+import google from "/public/google.svg";
+import twitter from "/public/twitter.svg";
 
 const Signup = () => {
   const [inputValue, setInputValue] = useState("");
   const [hasError, setHasError] = useState(false);
+  const iconArray = [google, twitter, facebook];
 
   const handleInputChange = (newValue: string) => {
     setInputValue(newValue);
@@ -45,10 +49,18 @@ const Signup = () => {
           type="password"
         />
       </div>
-      <div className="w-full">
-        <div className="btn-primary">Sign Up</div>
-        <div className={s.link}>
-          Already have an account? <Link href="/login">Log in</Link>
+      <div className={s.connect}>
+        <div className="w-full">
+          <div className="btn-primary">Sign Up</div>
+          <div className={s.link}>
+            Already have an account? <Link href="/login">Log in</Link>
+          </div>
+        </div>
+        <span>Or connect with</span>
+        <div className={s.iconGrp}>
+          {iconArray.map((icon, i) => (
+            <Image key={i} alt="" src={icon} className={s.icon} />
+          ))}
         </div>
       </div>
     </div>
