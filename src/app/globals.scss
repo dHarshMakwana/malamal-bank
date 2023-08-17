@@ -11,3 +11,42 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+div {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  text-decoration: none;
+  width: 100%;
+  color: white;
+}
+
+.btn-primary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 100%;
+  background-color: #39ff14;
+  color: black;
+}
+
+.btn-secondary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 100%;
+  border: 1px solid #39ff14;
+  color: #39ff14;
+}

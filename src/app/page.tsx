@@ -1,9 +1,25 @@
+import Image from "next/image";
 import s from "./page.module.scss";
+import logo from "/public/logo.png";
+import Link from "next/link";
 
 const Home = () => {
   return (
-    <main>
-      <h1 className={s.text}>hello</h1>
+    <main className={s.container}>
+      <div className={s.headline}>
+        MALAMAL <br /> <span>BANK</span>
+      </div>
+      <div className={s.vertMove}>
+        <Image alt="" src={logo} width={320} height={320} />
+      </div>
+      <div className={s.btnGroup}>
+        <Link href="/signin">
+          <div className="btn-primary">Sign In</div>
+        </Link>
+        <Link href="/login">
+          <div className="btn-secondary">Log In</div>
+        </Link>
+      </div>
     </main>
   );
 };
