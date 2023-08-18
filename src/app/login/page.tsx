@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import s from "./login.module.scss";
 import Image from "next/image";
 import logo from "/public/logo.png";
-import Input from "@/components/Input";
+import Input from "@/components/Input/Input";
 import Link from "next/link";
 import facebook from "/public/facebook.svg";
 import google from "/public/google.svg";
