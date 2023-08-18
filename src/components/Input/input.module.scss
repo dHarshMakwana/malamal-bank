@@ -1,0 +1,39 @@
+/* input.module.scss */
+.inputWrapper {
+  position: relative;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: #fff;
+  padding: 4px 0px;
+  margin-bottom: 0.3rem;
+  transition: top 0.3s ease, font-size 0.3s ease, color 0.3s ease;
+}
+
+.input {
+  border: none;
+  outline: none;
+  width: 100%;
+  color: white;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 1.2rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+  &.focused {
+    border-color: #39ff14;
+  }
+
+  &.error {
+    border-color: #e53e3e;
+  }
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 60%;
+  right: 10px; 
+  cursor: pointer;
+}
