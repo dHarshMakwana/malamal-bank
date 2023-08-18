@@ -8,15 +8,32 @@ import Link from "next/link";
 import facebook from "/public/facebook.svg";
 import google from "/public/google.svg";
 import twitter from "/public/twitter.svg";
+import { auth } from "@/config/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
-  const [inputValue, setInputValue] = useState("");
-  const [hasError, setHasError] = useState(false);
+  const value = {
+    email: "",
+    password: "",
+  };
 
-  const handleInputChange = (newValue: string) => {
-    setInputValue(newValue);
-    // You can perform additional validation here and set the error state accordingly
-    setHasError(newValue.includes("error"));
+  const [values, setValues] = useState(value);
+  const router = useRouter();
+
+  const handleInputChange = (e: any) => {
+    const { name, value } = e.target;
+    setValues({
+      ...values,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = () => {
+    signInWithEmailAndPassword(auth, values.email, values.password).then(() => {
+      console.log("login bhi hogaya");
+      router.push("/home");
+    });
   };
 
   const iconArray = [google, twitter, facebook];
@@ -33,19 +50,21 @@ const Login = () => {
           label="Email"
           placeholder="johndoe@gmail.com"
           onChange={handleInputChange}
-          error={hasError}
+          name="email"
         />
         <Input
           label="Password"
           placeholder="johndoe123"
           onChange={handleInputChange}
-          error={hasError}
           type="password"
+          name="password"
         />
       </div>
       <div className={s.connect}>
         <div className="w-full">
-          <div className="btn-primary">Log In</div>
+          <div onClick={handleSubmit} className="btn-primary">
+            Sign Up
+          </div>
           <div className={s.link}>
             Already have an account? <Link href="/signup">Sign up</Link>
           </div>
