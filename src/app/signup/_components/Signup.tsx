@@ -98,13 +98,6 @@ const Signup = () => {
     });
   };
 
-  if (typeof window !== "undefined") {
-    return (
-      <>
-        <h1>loading</h1>
-      </>
-    );
-  }
 
   return (
     <div className={s.container}>

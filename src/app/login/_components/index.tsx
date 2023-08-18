@@ -89,14 +89,6 @@ const Login = () => {
     });
   };
 
-  if (typeof window !== "undefined") {
-    return (
-      <>
-        <h1>loading</h1>
-      </>
-    );
-  }
-
   return (
     <div className={s.container}>
       <div className={s.headline}>
