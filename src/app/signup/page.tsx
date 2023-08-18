@@ -5,19 +5,97 @@ import Image from "next/image";
 import logo from "/public/logo.png";
 import Input from "@/components/Input/Input";
 import Link from "next/link";
-import facebook from "/public/facebook.svg";
+import github from "/public/github.svg";
 import google from "/public/google.svg";
-import twitter from "/public/twitter.svg";
+import { auth, db } from "@/config/firebase";
+import {
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { generateRandomNumber } from "@/utils/randomGenerator";
+import { useRouter } from "next/navigation";
 
 const Signup = () => {
-  const [inputValue, setInputValue] = useState("");
-  const [hasError, setHasError] = useState(false);
-  const iconArray = [google, twitter, facebook];
+  const value = {
+    name: "",
+    email: "",
+    password: "",
+  };
 
-  const handleInputChange = (newValue: string) => {
-    setInputValue(newValue);
-    // You can perform additional validation here and set the error state accordingly
-    setHasError(newValue.includes("error"));
+  const [values, setValues] = useState(value);
+  const randomNumber = generateRandomNumber();
+  const router = useRouter();
+  const googleProvider = new GoogleAuthProvider();
+  const githubProvider = new GithubAuthProvider();
+
+  const handleInputChange = (e: any) => {
+    const { name, value } = e.target;
+    setValues({
+      ...values,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = () => {
+    createUserWithEmailAndPassword(auth, values.email, values.password).then(
+      (user) => {
+        console.log("user ban gaya", user);
+        setDoc(doc(db, "users", user.user.uid), {
+          name: values.name,
+          email: values.email,
+          id: user.user.uid,
+          account: randomNumber,
+          balance: 500,
+          history: [],
+          isVerified: user.user.emailVerified,
+        }).then(() => {
+          console.log("ye bhi ho gaya");
+          router.push("/home");
+        });
+      }
+    );
+  };
+
+  const handleGoogleLogin = () => {
+    signInWithPopup(auth, googleProvider).then((result) => {
+      const user = result.user;
+      setDoc(doc(db, "users", user.uid), {
+        name: user.displayName,
+        email: user.email,
+        id: user.uid,
+        account: randomNumber,
+        balance: 500,
+        history: [],
+        isVerified: user.emailVerified,
+      }).then(() => {
+        console.log("ye bhi ho gaya");
+        router.push("/home");
+      });
+      console.log(user);
+    });
+  };
+
+  const handleGitHubLogin = () => {
+    signInWithPopup(auth, githubProvider).then((result) => {
+      const user = result.user;
+      console.log("user", user);
+      setDoc(doc(db, "users", user.uid), {
+        name: user.displayName,
+        email: user.email,
+        id: user.uid,
+        account: randomNumber,
+        balance: 500,
+        history: [],
+        isVerified: user.emailVerified,
+      }).then(() => {
+        console.log("ye bhi ho gaya");
+        router.push("/home");
+      });
+      console.log(user);
+    });
   };
 
   return (
@@ -30,37 +108,42 @@ const Signup = () => {
       </div>
       <div className={s.inputGrp}>
         <Input
-          label="Username"
+          label="name"
           placeholder="john doe"
           onChange={handleInputChange}
-          error={hasError}
+          name="name"
         />
         <Input
           label="Email"
           placeholder="johndoe@gmail.com"
           onChange={handleInputChange}
-          error={hasError}
+          name="email"
         />
         <Input
           label="Password"
           placeholder="johndoe123"
           onChange={handleInputChange}
-          error={hasError}
           type="password"
+          name="password"
         />
       </div>
       <div className={s.connect}>
         <div className="w-full">
-          <div className="btn-primary">Sign Up</div>
+          <div onClick={handleSubmit} className="btn-primary">
+            Sign Up
+          </div>
           <div className={s.link}>
             Already have an account? <Link href="/login">Log in</Link>
           </div>
         </div>
         <span>Or connect with</span>
         <div className={s.iconGrp}>
-          {iconArray.map((icon, i) => (
-            <Image key={i} alt="" src={icon} className={s.icon} />
-          ))}
+          <div onClick={handleGoogleLogin} className={s.iconCover}>
+            <Image alt="" src={google} className={s.icon} />
+          </div>
+          <div onClick={handleGitHubLogin} className={s.iconCover}>
+            <Image alt="" src={github} className={s.icon} />
+          </div>
         </div>
       </div>
     </div>

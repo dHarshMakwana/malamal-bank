@@ -11,6 +11,7 @@
   align-items: center;
   flex-direction: column;
   height: 100vh;
+  color: white;
   .headline {
     color: #39ff14;
     text-align: center;
@@ -48,10 +49,12 @@
       justify-content: center;
       align-items: center;
       gap: 1rem;
-      .icon {
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
+      .iconCover {
+        width: min-content;
+        .icon {
+          width: 50px;
+          height: 50px;
+        }
       }
     }
   }

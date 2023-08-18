@@ -4,11 +4,13 @@ import s from "./input.module.scss";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface InputProps {
-  label: string; // New prop for the label
+  label: string;
   placeholder: string;
-  onChange: (value: string) => void;
+  onChange: (value: React.ChangeEvent<HTMLInputElement>) => void;
   error?: boolean;
   type?: string;
+  value?: string;
+  name?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -17,16 +19,11 @@ const Input: React.FC<InputProps> = ({
   onChange,
   error,
   type = "text",
+  value,
+  name,
 }) => {
-  const [inputValue, setInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
-    onChange(newValue);
-  };
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -49,12 +46,13 @@ const Input: React.FC<InputProps> = ({
       <p className={s.label}>{label}</p>
       <input
         type={showPassword ? "text" : type}
-        value={inputValue}
-        onChange={handleInputChange}
+        onChange={onChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         className={s.input}
         placeholder={placeholder}
+        value={value}
+        name={name}
       />
       {type === "password" && (
         <span className={s.passwordToggle} onClick={handleTogglePassword}>
