@@ -5,11 +5,11 @@ import Image from "next/image";
 import logo from "/public/logo.png";
 import Input from "@/components/Input/Input";
 import Link from "next/link";
-import facebook from "/public/facebook.svg";
+import github from "/public/github.svg";
 import google from "/public/google.svg";
-import twitter from "/public/twitter.svg";
 import { auth, db } from "@/config/firebase";
 import {
+  GithubAuthProvider,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithPopup,
@@ -24,16 +24,12 @@ const Signup = () => {
     email: "",
     password: "",
   };
-  const iconArray = [
-    { icon: google, onClick: () => console.log("first") },
-    { icon: twitter, onClick: () => console.log("first") },
-    { icon: facebook, onClick: () => console.log("first") },
-  ];
 
   const [values, setValues] = useState(value);
   const randomNumber = generateRandomNumber();
   const router = useRouter();
-  const provider = new GoogleAuthProvider();
+  const googleProvider = new GoogleAuthProvider();
+  const githubProvider = new GithubAuthProvider();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -64,7 +60,7 @@ const Signup = () => {
   };
 
   const handleGoogleLogin = () => {
-    signInWithPopup(auth, provider).then((result) => {
+    signInWithPopup(auth, googleProvider).then((result) => {
       const user = result.user;
       setDoc(doc(db, "users", user.uid), {
         name: user.displayName,
@@ -82,8 +78,27 @@ const Signup = () => {
     });
   };
 
+  const handleGitHubLogin = () => {
+    signInWithPopup(auth, githubProvider).then((result) => {
+      const user = result.user;
+      console.log("user", user);
+      setDoc(doc(db, "users", user.uid), {
+        name: user.displayName,
+        email: user.email,
+        id: user.uid,
+        account: randomNumber,
+        balance: 500,
+        history: [],
+        isVerified: user.emailVerified,
+      }).then(() => {
+        console.log("ye bhi ho gaya");
+        router.push("/home");
+      });
+      console.log(user);
+    });
+  };
+
   return (
-    // <AuthContextProvider>
     <div className={s.container}>
       <div className={s.headline}>
         <Image alt="" src={logo} width={100} />
@@ -123,15 +138,15 @@ const Signup = () => {
         </div>
         <span>Or connect with</span>
         <div className={s.iconGrp}>
-          {iconArray.map((item, i) => (
-            <div key={i} onClick={handleGoogleLogin} className="">
-              <Image alt="" src={item.icon} className={s.icon} />
-            </div>
-          ))}
+          <div onClick={handleGoogleLogin} className={s.iconCover}>
+            <Image alt="" src={google} className={s.icon} />
+          </div>
+          <div onClick={handleGitHubLogin} className={s.iconCover}>
+            <Image alt="" src={github} className={s.icon} />
+          </div>
         </div>
       </div>
     </div>
-    // {/* </AuthContextProvider> */}
   );
 };
 
