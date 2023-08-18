@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import s from "./signup.module.scss";
 import Image from "next/image";
 import logo from "/public/logo.png";
@@ -9,7 +9,11 @@ import facebook from "/public/facebook.svg";
 import google from "/public/google.svg";
 import twitter from "/public/twitter.svg";
 import { auth, db } from "@/config/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { generateRandomNumber } from "@/utils/randomGenerator";
 import { useRouter } from "next/navigation";
@@ -29,6 +33,7 @@ const Signup = () => {
   const [values, setValues] = useState(value);
   const randomNumber = generateRandomNumber();
   const router = useRouter();
+  const provider = new GoogleAuthProvider();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -56,6 +61,25 @@ const Signup = () => {
         });
       }
     );
+  };
+
+  const handleGoogleLogin = () => {
+    signInWithPopup(auth, provider).then((result) => {
+      const user = result.user;
+      setDoc(doc(db, "users", user.uid), {
+        name: user.displayName,
+        email: user.email,
+        id: user.uid,
+        account: randomNumber,
+        balance: 500,
+        history: [],
+        isVerified: user.emailVerified,
+      }).then(() => {
+        console.log("ye bhi ho gaya");
+        router.push("/home");
+      });
+      console.log(user);
+    });
   };
 
   return (
@@ -100,7 +124,7 @@ const Signup = () => {
         <span>Or connect with</span>
         <div className={s.iconGrp}>
           {iconArray.map((item, i) => (
-            <div key={i} onClick={item.onClick} className="">
+            <div key={i} onClick={handleGoogleLogin} className="">
               <Image alt="" src={item.icon} className={s.icon} />
             </div>
           ))}
