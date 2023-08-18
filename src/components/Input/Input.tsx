@@ -17,10 +17,10 @@ const Input: React.FC<InputProps> = ({
   label,
   placeholder,
   onChange,
-  error,
+  error = false,
   type = "text",
-  value,
-  name,
+  value = "",
+  name = "",
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
