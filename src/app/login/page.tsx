@@ -1,7 +1,7 @@
 import React from "react";
 import dynamic from "next/dynamic";
 
-const Login = dynamic(() => import("./_components"), {
+const Login = dynamic(() => import("./_components/Login"), {
   ssr: false,
 });
 

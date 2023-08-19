@@ -20,8 +20,8 @@ import Input from "@/components/Input/Input";
 
 const Login = () => {
   const value = {
-    email: "",
-    password: "",
+    email: "test@test.com",
+    password: "test@123",
   };
 
   const [values, setValues] = useState(value);
@@ -42,8 +42,8 @@ const Login = () => {
     try {
       if (window && typeof window !== "undefined") {
         await signInWithEmailAndPassword(auth, values.email, values.password);
-        // console.log("login bhi hogaya");
-        // router.push("/home");
+        console.log("login bhi hogaya");
+        router.push("/home");
       }
     } catch (error) {
       console.log(error);
@@ -103,6 +103,7 @@ const Login = () => {
           placeholder="johndoe@gmail.com"
           onChange={handleInputChange}
           name="email"
+          value={values.email}
         />
         <Input
           label="Password"
@@ -110,12 +111,13 @@ const Login = () => {
           onChange={handleInputChange}
           type="password"
           name="password"
+          value={values.password}
         />
       </div>
       <div className={s.connect}>
         <div className="w-full">
           <div onClick={handleSubmit} className="btn-primary">
-            Sign Up
+            Log In
           </div>
           <div className={s.link}>
             Already have an account? <Link href="/signup">Sign up</Link>

@@ -1,4 +1,3 @@
-// Input.tsx
 import React, { useState } from "react";
 import s from "./input.module.scss";
 import { FiEye, FiEyeOff } from "react-icons/fi";
@@ -30,7 +29,7 @@ const Input: React.FC<InputProps> = ({
   };
 
   const handleBlur = () => {
-    setIsFocused(false);
+    setIsFocused(false);  
   };
 
   const handleTogglePassword = () => {

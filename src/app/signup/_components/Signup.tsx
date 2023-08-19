@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 
 const Signup = () => {
   const value = {
-    name: "",
+    name: "HARSH",
     email: "",
     password: "",
   };
@@ -98,7 +98,6 @@ const Signup = () => {
     });
   };
 
-
   return (
     <div className={s.container}>
       <div className={s.headline}>
@@ -113,12 +112,14 @@ const Signup = () => {
           placeholder="john doe"
           onChange={handleInputChange}
           name="name"
+          value={values.name}
         />
         <Input
           label="Email"
           placeholder="johndoe@gmail.com"
           onChange={handleInputChange}
           name="email"
+          value={values.email}
         />
         <Input
           label="Password"
@@ -126,6 +127,7 @@ const Signup = () => {
           onChange={handleInputChange}
           type="password"
           name="password"
+          value={values.password}
         />
       </div>
       <div className={s.connect}>
