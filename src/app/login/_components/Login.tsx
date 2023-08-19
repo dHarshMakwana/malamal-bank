@@ -11,8 +11,6 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { setDoc, doc } from "firebase/firestore";
-import { generateRandomNumber } from "@/utils/randomGenerator";
 import logo from "/public/logo.png";
 import github from "/public/github.svg";
 import google from "/public/google.svg";
@@ -26,7 +24,6 @@ const Login = () => {
 
   const [values, setValues] = useState(value);
   const router = useRouter();
-  const randomNumber = generateRandomNumber();
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
 
@@ -51,41 +48,14 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    signInWithPopup(auth, googleProvider).then((result) => {
-      const user = result.user;
-      setDoc(doc(db, "users", user.uid), {
-        name: user.displayName,
-        email: user.email,
-        id: user.uid,
-        account: randomNumber,
-        balance: 500,
-        history: [],
-        isVerified: user.emailVerified,
-      }).then(() => {
-        console.log("ye bhi ho gaya");
-        router.push("/home");
-      });
-      console.log(user);
+    signInWithPopup(auth, googleProvider).then(() => {
+      router.push("/home");
     });
   };
 
   const handleGitHubLogin = () => {
-    signInWithPopup(auth, githubProvider).then((result) => {
-      const user = result.user;
-      console.log("user", user);
-      setDoc(doc(db, "users", user.uid), {
-        name: user.displayName,
-        email: user.email,
-        id: user.uid,
-        account: randomNumber,
-        balance: 500,
-        history: [],
-        isVerified: user.emailVerified,
-      }).then(() => {
-        console.log("ye bhi ho gaya");
-        router.push("/home");
-      });
-      console.log(user);
+    signInWithPopup(auth, githubProvider).then(() => {
+      router.push("/home");
     });
   };
 
