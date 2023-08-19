@@ -1,17 +1,17 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import s from "./modal.module.scss";
-import Portal from "../Portal";
+import Portal from "../../Portal";
 
-interface ModalProps {
+export interface ModalProps {
   open: boolean;
   onClose: () => void;
-  children: any;
+  children?: any;
 }
 
 const Modal: React.FC<ModalProps> = ({ open, onClose, children }) => {
   return (
-    <Portal>
+    // <Portal>
       <AnimatePresence>
         {open && (
           <motion.div
@@ -34,7 +34,7 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, children }) => {
           </motion.div>
         )}
       </AnimatePresence>
-    </Portal>
+    // </Portal>
   );
 };
 

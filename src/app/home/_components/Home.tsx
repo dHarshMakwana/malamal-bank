@@ -6,7 +6,7 @@ import Image from "next/image";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
-import Modal from "@/components/Modal/Modal";
+import DepositModal from "@modals/DepositModal";
 
 const Home = () => {
   const value = {
@@ -21,7 +21,7 @@ const Home = () => {
 
   const router = useRouter();
   const [data, setData] = useState<any>(value);
-  const [open, setOpen] = useState(false);
+  const [open, setDepositOpen] = useState(false);
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -38,11 +38,11 @@ const Home = () => {
       };
       getData();
     }
-  }, []);
+  }, [auth.currentUser]);
 
   const { name, history, balance } = data;
 
-  console.log("open",open);
+  console.log("open", open);
 
   return (
     <div className={s.container}>
@@ -60,18 +60,22 @@ const Home = () => {
         </p>
       </div>
       <div className={s.btnGrp}>
-        <div onClick={() => setOpen(true)} className="btn-primary">
-          withdraw
+        <div className="btn-primary">withdraw</div>
+        <div onClick={() => setDepositOpen(true)} className="btn-secondary">
+          deposit
         </div>
-        <div className="btn-secondary">deposit</div>
       </div>
       <div className={s.subHeader}>
         <p>History</p>
         <span>see all</span>
       </div>
-      <Modal open={open} onClose={() => setOpen(false)}>
-        hello
-      </Modal>
+      <DepositModal
+        open={open}
+        onClose={() => setDepositOpen(false)}
+        userId={auth.currentUser?.uid as string}
+        balance={balance}
+        history={history}
+      />
     </div>
   );
 };

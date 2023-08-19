@@ -8,8 +8,9 @@ interface InputProps {
   onChange: (value: React.ChangeEvent<HTMLInputElement>) => void;
   error?: boolean;
   type?: string;
-  value?: string;
+  value?: string | number;
   name?: string;
+  errorMessage?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -20,6 +21,7 @@ const Input: React.FC<InputProps> = ({
   type = "text",
   value = "",
   name = "",
+  errorMessage = "",
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +31,7 @@ const Input: React.FC<InputProps> = ({
   };
 
   const handleBlur = () => {
-    setIsFocused(false);  
+    setIsFocused(false);
   };
 
   const handleTogglePassword = () => {
@@ -53,6 +55,7 @@ const Input: React.FC<InputProps> = ({
         value={value}
         name={name}
       />
+      {error && <p className={s.labelError}>{errorMessage}</p>}
       {type === "password" && (
         <span className={s.passwordToggle} onClick={handleTogglePassword}>
           {showPassword ? <FiEyeOff /> : <FiEye />}

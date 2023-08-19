@@ -61,3 +61,19 @@ button {
   border: none;
   background: transparent;
 }
+
+button[disabled] {
+  cursor: not-allowed;
+  opacity: 80%;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

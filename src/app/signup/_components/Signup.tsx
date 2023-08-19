@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 
 const Signup = () => {
   const value = {
-    name: "HARSH",
+    name: "",
     email: "",
     password: "",
   };

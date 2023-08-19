@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import s from "../_styles/login.module.scss";
 import Image from "next/image";
 import Link from "next/link";
-import { auth, db } from "@/config/firebase";
+import { auth } from "@/config/firebase";
 import {
   GithubAuthProvider,
   GoogleAuthProvider,
