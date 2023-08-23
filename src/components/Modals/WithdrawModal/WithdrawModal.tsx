@@ -9,6 +9,7 @@ interface WithdrawProps extends ModalProps {
   userId: string;
   balance: number;
   history: object[];
+  onSuccessWithdraw: (newBalance: number, newHistory: object[]) => void;
 }
 
 const WithdrawModal: FC<WithdrawProps> = ({
@@ -17,6 +18,7 @@ const WithdrawModal: FC<WithdrawProps> = ({
   userId,
   balance,
   history,
+  onSuccessWithdraw,
 }) => {
   const [amount, setAmount] = useState<number>();
   const [error, setError] = useState({
@@ -35,7 +37,7 @@ const WithdrawModal: FC<WithdrawProps> = ({
           message: "you can't withdraw more than 50000 at a time",
         });
       } else {
-        if (amount < balance) {
+        if (amount <= balance) {
           setError({ isError: false, message: "" });
           setDoc(
             doc(db, "users", userId),
@@ -52,7 +54,18 @@ const WithdrawModal: FC<WithdrawProps> = ({
               // withdrawLimit: 50000 - amount,
             },
             { merge: true }
-          ).then(() => onClose());
+          ).then(() => {
+            onSuccessWithdraw(balance - amount, [
+              ...history,
+              {
+                type: "withdraw",
+                amount: amount,
+                date: new Date(),
+              },
+            ]);
+
+            onClose();
+          });
         } else {
           setError({ isError: true, message: "you don't have enough balance" });
         }

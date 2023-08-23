@@ -71,4 +71,34 @@
       white-space: nowrap;
     }
   }
+  .history {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
+    text-transform: capitalize;
+    height: 346px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    .historyItem {
+      padding: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      border-radius: 12px;
+      .green {
+        color: #39ff14;
+      }
+      .red {
+        color: #ff0000;
+      }
+      &:hover {
+        background: #4747479c;
+      }
+      div {
+        width: max-content;
+        cursor: default;
+      }
+    }
+  }
 }

@@ -7,6 +7,8 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
 import DepositModal from "@modals/DepositModal";
+import WithdrawModal from "@modals/WithdrawModal";
+import { useAuth } from "@/lib/AuthContext";
 
 const Home = () => {
   const value = {
@@ -21,7 +23,9 @@ const Home = () => {
 
   const router = useRouter();
   const [data, setData] = useState<any>(value);
-  const [open, setDepositOpen] = useState(false);
+  const [dipositOpen, setDepositOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const {} = useAuth();
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -38,11 +42,19 @@ const Home = () => {
       };
       getData();
     }
-  }, [auth.currentUser]);
+  }, [router]);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        router.push("/");
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const { name, history, balance } = data;
-
-  console.log("open", open);
 
   return (
     <div className={s.container}>
@@ -60,7 +72,9 @@ const Home = () => {
         </p>
       </div>
       <div className={s.btnGrp}>
-        <div className="btn-primary">withdraw</div>
+        <div onClick={() => setWithdrawOpen(true)} className="btn-primary">
+          withdraw
+        </div>
         <div onClick={() => setDepositOpen(true)} className="btn-secondary">
           deposit
         </div>
@@ -69,12 +83,45 @@ const Home = () => {
         <p>History</p>
         <span>see all</span>
       </div>
+      <div className={s.history}>
+        {history &&
+          history.reverse().map((item: any, index: number) => (
+            <div key={index} className={s.historyItem}>
+              <div className="">{item.type}</div>
+              <div className={item.type == "deposit" ? s.green : s.red}>
+                {" "}
+                {item.type == "deposit" ? "+" : "-"} {item.amount}
+              </div>
+            </div>
+          ))}
+      </div>
       <DepositModal
-        open={open}
+        open={dipositOpen}
         onClose={() => setDepositOpen(false)}
         userId={auth.currentUser?.uid as string}
         balance={balance}
         history={history}
+        onSuccessDeposit={(newBalance, newHistory) => {
+          setData((prevData: any) => ({
+            ...prevData,
+            balance: newBalance,
+            history: newHistory,
+          }));
+        }}
+      />
+      <WithdrawModal
+        open={withdrawOpen}
+        onClose={() => setWithdrawOpen(false)}
+        userId={auth.currentUser?.uid as string}
+        balance={balance}
+        history={history}
+        onSuccessWithdraw={(newBalance, newHistory) => {
+          setData((prevData: any) => ({
+            ...prevData,
+            balance: newBalance,
+            history: newHistory,
+          }));
+        }}
       />
     </div>
   );

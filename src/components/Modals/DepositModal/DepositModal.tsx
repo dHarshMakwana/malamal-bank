@@ -9,6 +9,7 @@ interface DepositProps extends ModalProps {
   userId: string;
   balance: number;
   history: object[];
+  onSuccessDeposit: (newBalance: number, newHistory: object[]) => void;
 }
 
 const DepositModal: FC<DepositProps> = ({
@@ -17,6 +18,7 @@ const DepositModal: FC<DepositProps> = ({
   userId,
   balance,
   history,
+  onSuccessDeposit,
 }) => {
   const [amount, setAmount] = useState<number>();
   const [error, setError] = useState({
@@ -51,7 +53,18 @@ const DepositModal: FC<DepositProps> = ({
             // depositLimit: 50000 - amount,
           },
           { merge: true }
-        ).then(() => onClose());
+        ).then(() => {
+          onSuccessDeposit(balance + +amount, [
+            ...history,
+            {
+              type: "deposit",
+              amount: amount,
+              date: new Date(),
+            },
+          ]);
+
+          onClose();
+        });
       }
     }
   };
