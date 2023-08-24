@@ -8,7 +8,7 @@ import { auth, db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
 import DepositModal from "@modals/DepositModal";
 import WithdrawModal from "@modals/WithdrawModal";
-import { useAuth } from "@/lib/AuthContext";
+import { useAuth } from "@/lib/AuthContext.context";
 import Burger from "@components/Burger";
 
 const Home = () => {
@@ -26,38 +26,20 @@ const Home = () => {
   const [data, setData] = useState<any>(value);
   const [dipositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const {} = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
-    if (!auth.currentUser) {
+    if (!user) {
       router.push("/");
     } else {
-      const getData = async () => {
-        if (auth.currentUser) {
-          const id = auth.currentUser.uid;
-          const docRef = doc(db, "users", id);
-          const docSnap = await getDoc(docRef);
-          console.log("dataaaa", docSnap.data());
-          setData(docSnap.data());
-        }
-      };
-      getData();
+      console.log(user);
+      setData(user);
     }
-  }, [router]);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        router.push("/");
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const { name, history, balance } = data;
 
-  console.log("first", auth.currentUser);
+  // console.log("first", auth.currentUser);
 
   return (
     <div className={s.container}>

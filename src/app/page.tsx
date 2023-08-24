@@ -10,7 +10,7 @@ const Home = () => {
         MALAMAL <br /> <span>BANK</span>
       </div>
       <div className={s.vertMove}>
-        <Image alt="" src={logo} width={320} height={320} />
+        <Image alt="" src={logo} width={320} height={320}  />
       </div>
       <div className={s.btnGroup}>
         <Link href="/signup">

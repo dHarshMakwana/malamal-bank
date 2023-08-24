@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import s from "../_styles/login.module.scss";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +15,7 @@ import logo from "/public/logo.png";
 import github from "/public/github.svg";
 import google from "/public/google.svg";
 import Input from "@/components/Input/Input";
-import { useAuth } from "@/lib/AuthContext";
+import { AuthContext, useAuth } from "@/lib/AuthContext.context";
 
 const Login = () => {
   const value = {
@@ -27,7 +27,7 @@ const Login = () => {
   const router = useRouter();
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
-  const { login } = useAuth();
+  const { login } = useContext(AuthContext);
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -40,9 +40,7 @@ const Login = () => {
   const handleSubmit = async () => {
     try {
       if (window && typeof window !== "undefined") {
-        await signInWithEmailAndPassword(auth, values.email, values.password);
-        console.log("login bhi hogaya");
-        router.push("/home");
+        await login(values.email, values.password);
       }
     } catch (error) {
       console.log(error);
