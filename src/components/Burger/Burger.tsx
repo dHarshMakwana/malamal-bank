@@ -1,14 +1,41 @@
-import React from "react";
+import { FC, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import s from "./burger.module.scss";
+import Image from "next/image";
+import logo from "/public/logo.png";
 
-const Burger = () => {
+interface HamburgerSidebarProps {}
+
+const Burger: FC<HamburgerSidebarProps> = ({}) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
+
   return (
-    <label className={s.burger}>
-      <input type="checkbox" />
-      <span></span>
-      <span></span>
-      <span></span>
-    </label>
+    <div className={s.sidebarContainer}>
+      <button className={s.hamburgerButton} onClick={handleToggle}>
+        menu
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={s.sidebar}
+          >
+            <div className={s.container}>
+              <div className={s.header}>
+                <Image width={50} alt="" src={logo} />
+                <div onClick={handleToggle}>close</div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

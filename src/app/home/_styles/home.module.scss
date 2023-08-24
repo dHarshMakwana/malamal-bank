@@ -9,14 +9,13 @@
   gap: 3rem;
   align-items: center;
   flex-direction: column;
-  height: 100vh;
   .header {
     display: flex;
     width: 100%;
     justify-content: space-between;
     align-items: center;
     span {
-      color: red;
+      color: white;
     }
   }
   .hello {

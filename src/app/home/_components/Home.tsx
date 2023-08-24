@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import DepositModal from "@modals/DepositModal";
 import WithdrawModal from "@modals/WithdrawModal";
 import { useAuth } from "@/lib/AuthContext";
+import Burger from "@components/Burger";
 
 const Home = () => {
   const value = {
@@ -56,11 +57,14 @@ const Home = () => {
 
   const { name, history, balance } = data;
 
+  console.log("first", auth.currentUser);
+
   return (
     <div className={s.container}>
       <div className={s.header}>
         <Image width={50} alt="" src={logo} />
-        <span>log out</span>
+        {/* <span>log out</span> */}
+        <Burger />
       </div>
       <div className={s.hello}>
         hello <span>{name}</span>
