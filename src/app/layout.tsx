@@ -1,3 +1,5 @@
+// "use client";
+// import { AuthContext, AuthContextProvider } from "@/lib/AuthContext";
 import "./globals.scss";
 import type { Metadata } from "next";
 
@@ -13,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <>{children}</>
+      </body>
     </html>
   );
 }

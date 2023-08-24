@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import s from "../_styles/login.module.scss";
 import Image from "next/image";
 import Link from "next/link";
-import { auth, db } from "@/config/firebase";
+import { auth } from "@/config/firebase";
 import {
   GithubAuthProvider,
   GoogleAuthProvider,
@@ -11,24 +11,23 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { setDoc, doc } from "firebase/firestore";
-import { generateRandomNumber } from "@/utils/randomGenerator";
 import logo from "/public/logo.png";
 import github from "/public/github.svg";
 import google from "/public/google.svg";
 import Input from "@/components/Input/Input";
+import { useAuth } from "@/lib/AuthContext";
 
 const Login = () => {
   const value = {
-    email: "",
-    password: "",
+    email: "test@test.com",
+    password: "test@123",
   };
 
   const [values, setValues] = useState(value);
   const router = useRouter();
-  const randomNumber = generateRandomNumber();
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
+  const { login } = useAuth();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -42,8 +41,8 @@ const Login = () => {
     try {
       if (window && typeof window !== "undefined") {
         await signInWithEmailAndPassword(auth, values.email, values.password);
-        // console.log("login bhi hogaya");
-        // router.push("/home");
+        console.log("login bhi hogaya");
+        router.push("/home");
       }
     } catch (error) {
       console.log(error);
@@ -51,41 +50,14 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    signInWithPopup(auth, googleProvider).then((result) => {
-      const user = result.user;
-      setDoc(doc(db, "users", user.uid), {
-        name: user.displayName,
-        email: user.email,
-        id: user.uid,
-        account: randomNumber,
-        balance: 500,
-        history: [],
-        isVerified: user.emailVerified,
-      }).then(() => {
-        console.log("ye bhi ho gaya");
-        router.push("/home");
-      });
-      console.log(user);
+    signInWithPopup(auth, googleProvider).then(() => {
+      router.push("/home");
     });
   };
 
   const handleGitHubLogin = () => {
-    signInWithPopup(auth, githubProvider).then((result) => {
-      const user = result.user;
-      console.log("user", user);
-      setDoc(doc(db, "users", user.uid), {
-        name: user.displayName,
-        email: user.email,
-        id: user.uid,
-        account: randomNumber,
-        balance: 500,
-        history: [],
-        isVerified: user.emailVerified,
-      }).then(() => {
-        console.log("ye bhi ho gaya");
-        router.push("/home");
-      });
-      console.log(user);
+    signInWithPopup(auth, githubProvider).then(() => {
+      router.push("/home");
     });
   };
 
@@ -103,6 +75,7 @@ const Login = () => {
           placeholder="johndoe@gmail.com"
           onChange={handleInputChange}
           name="email"
+          value={values.email}
         />
         <Input
           label="Password"
@@ -110,12 +83,13 @@ const Login = () => {
           onChange={handleInputChange}
           type="password"
           name="password"
+          value={values.password}
         />
       </div>
       <div className={s.connect}>
         <div className="w-full">
           <div onClick={handleSubmit} className="btn-primary">
-            Sign Up
+            Log In
           </div>
           <div className={s.link}>
             Already have an account? <Link href="/signup">Sign up</Link>

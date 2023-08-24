@@ -21,7 +21,7 @@ export const AuthContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   // console.log(user);
 
   const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -63,7 +63,7 @@ export const AuthContextProvider = ({
 
   return (
     <AuthContext.Provider value={{ user, login, signup, logout, googleLogin }}>
-      {loading ? null : children}
+      {loading ? children : children}
     </AuthContext.Provider>
   );
 };
