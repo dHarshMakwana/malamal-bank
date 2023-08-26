@@ -29,13 +29,20 @@ const Home = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) {
+    if (!auth.currentUser) {
       router.push("/");
     } else {
-      // console.log(user);
-      setData(user);
+      const getData = async () => {
+        if (auth.currentUser) {
+          const id = auth.currentUser.uid;
+          const docRef = doc(db, "users", id);
+          const docSnap = await getDoc(docRef);
+          setData(docSnap.data());
+        }
+      };
+      getData();
     }
-  }, [user]);
+  }, [router]);
 
   const { name, history, balance } = data;
 
