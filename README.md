@@ -1,3 +1,4 @@
+
 # Malamal Bank Project
 
 Welcome to the Malamal Bank project repository! This project showcases the use of TypeScript, Next.js 13, SCSS, and Firebase to create a dynamic banking web application with a focus on user experience and functionality.

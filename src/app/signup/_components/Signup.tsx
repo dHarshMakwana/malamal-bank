@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import s from "../_styles/signup.module.scss";
 import Image from "next/image";
 import logo from "/public/logo.png";
@@ -7,16 +7,8 @@ import Input from "@/components/Input/Input";
 import Link from "next/link";
 import github from "/public/github.svg";
 import google from "/public/google.svg";
-import { auth, db } from "@/config/firebase";
-import {
-  GithubAuthProvider,
-  GoogleAuthProvider,
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
 import { generateRandomNumber } from "@/utils/randomGenerator";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/AuthContext.context";
 
 const Signup = () => {
   const value = {
@@ -27,9 +19,7 @@ const Signup = () => {
 
   const [values, setValues] = useState(value);
   const randomNumber = generateRandomNumber();
-  const router = useRouter();
-  const googleProvider = new GoogleAuthProvider();
-  const githubProvider = new GithubAuthProvider();
+  const { signup, googleLogin, githubLogin } = useAuth();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -40,62 +30,15 @@ const Signup = () => {
   };
 
   const handleSubmit = () => {
-    createUserWithEmailAndPassword(auth, values.email, values.password).then(
-      (user) => {
-        console.log("user ban gaya", user);
-        setDoc(doc(db, "users", user.user.uid), {
-          name: values.name,
-          email: values.email,
-          id: user.user.uid,
-          account: randomNumber,
-          balance: 500,
-          history: [],
-          isVerified: user.user.emailVerified,
-        }).then(() => {
-          console.log("ye bhi ho gaya");
-          router.push("/home");
-        });
-      }
-    );
+    signup(values.email, values.password, values.name, randomNumber);
   };
 
   const handleGoogleLogin = () => {
-    signInWithPopup(auth, googleProvider).then((result) => {
-      const user = result.user;
-      setDoc(doc(db, "users", user.uid), {
-        name: user.displayName,
-        email: user.email,
-        id: user.uid,
-        account: randomNumber,
-        balance: 500,
-        history: [],
-        isVerified: user.emailVerified,
-      }).then(() => {
-        console.log("ye bhi ho gaya");
-        router.push("/home");
-      });
-      console.log(user);
-    });
+    googleLogin(randomNumber);
   };
 
   const handleGitHubLogin = () => {
-    signInWithPopup(auth, githubProvider).then((result) => {
-      const user = result.user;
-      console.log("user", user);
-      setDoc(doc(db, "users", user.uid), {
-        name: user.displayName,
-        email: user.email,
-        id: user.uid,
-        account: randomNumber,
-        balance: 500,
-        history: [],
-        isVerified: user.emailVerified,
-      }).then(() => {
-        console.log("ye bhi ho gaya");
-        router.push("/home");
-      });
-      console.log(user);
-    });
+    githubLogin(randomNumber);
   };
 
   return (
