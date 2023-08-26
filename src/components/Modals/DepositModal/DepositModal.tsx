@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import Modal, { ModalProps } from "../Modal";
 import Input from "@components/Input";
 import s from "./modal.module.scss";
@@ -28,6 +28,8 @@ const DepositModal: FC<DepositProps> = ({
   const handleOnchange = (e: any) => {
     setAmount(e.target.value);
   };
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const handleSubmit = () => {
     if (amount) {
@@ -68,6 +70,12 @@ const DepositModal: FC<DepositProps> = ({
       }
     }
   };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
   return (
     <Modal open={open} onClose={onClose}>
       <div className={s.container}>
@@ -80,6 +88,7 @@ const DepositModal: FC<DepositProps> = ({
           value={amount}
           error={error.isError}
           errorMessage={error.message}
+          autoFocus
         />
         <div className={s.btnGroup}>
           <button

@@ -1,3 +1,5 @@
+@import "../styles/variable.scss";
+
 .container {
   max-width: 378px;
   margin: 0 auto;
@@ -14,6 +16,9 @@
     color: #39ff14;
     text-align: center;
     font-size: 70px;
+    @include devices(mobile) {
+      font-size: calc(30% + 15vw);
+    }
     span {
       color: white;
     }
@@ -21,10 +26,10 @@
 
   @keyframes mover {
     0% {
-      transform: translateY(-35%);
+      transform: translateY(-30%);
     }
     100% {
-      transform: translateY(35%);
+      transform: translateY(23%);
     }
   }
 
@@ -32,6 +37,17 @@
     // height: 100%;
     -webkit-animation: mover 3s infinite alternate;
     animation: mover 3s infinite alternate;
+    display: flex;
+    justify-content: center;
+    .logo {
+      background: transparent;
+      height: 320px;
+      width: 320px;
+      @include devices(mobile) {
+        width: calc(45% + 30vw);
+        height: calc(50% + 30vw);
+      }
+    }
   }
 
   .btnGroup {
