@@ -8,8 +8,8 @@ import { auth, db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
 import DepositModal from "@modals/DepositModal";
 import WithdrawModal from "@modals/WithdrawModal";
-import { useAuth } from "@/lib/AuthContext.context";
 import Burger from "@components/Burger";
+import { useAuth } from "@/lib/AuthContext.context";
 
 const Home = () => {
   const value = {
@@ -32,7 +32,7 @@ const Home = () => {
     if (!user) {
       router.push("/");
     } else {
-      console.log(user);
+      // console.log(user);
       setData(user);
     }
   }, [user]);

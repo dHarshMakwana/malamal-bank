@@ -8,8 +8,7 @@ import Link from "next/link";
 import github from "/public/github.svg";
 import google from "/public/google.svg";
 import { generateRandomNumber } from "@/utils/randomGenerator";
-import { useRouter } from "next/navigation";
-import { AuthContext } from "@/lib/AuthContext.context";
+import { useAuth } from "@/lib/AuthContext.context";
 
 const Signup = () => {
   const value = {
@@ -20,7 +19,7 @@ const Signup = () => {
 
   const [values, setValues] = useState(value);
   const randomNumber = generateRandomNumber();
-  const { signup, googleLogin, githubLogin } = useContext(AuthContext);
+  const { signup, googleLogin, githubLogin } = useAuth();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;

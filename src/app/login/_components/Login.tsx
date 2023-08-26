@@ -15,7 +15,7 @@ import logo from "/public/logo.png";
 import github from "/public/github.svg";
 import google from "/public/google.svg";
 import Input from "@/components/Input/Input";
-import { AuthContext, useAuth } from "@/lib/AuthContext.context";
+import { useAuth } from "@/lib/AuthContext.context";
 
 const Login = () => {
   const value = {
@@ -27,7 +27,7 @@ const Login = () => {
   const router = useRouter();
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;

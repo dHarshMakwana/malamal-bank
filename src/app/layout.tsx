@@ -1,6 +1,7 @@
-import { AuthContextProvider } from "@/lib/AuthContext.context";
+import AuthContextProvider from "@/lib/AuthContext.context";
 import "./globals.scss";
 import type { Metadata } from "next";
+import React, { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Malamal Bank",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <>{children}</>
+        <Suspense fallback={<div>Loading...</div>}>
+          <AuthContextProvider>{children}</AuthContextProvider>
+        </Suspense>
       </body>
     </html>
   );

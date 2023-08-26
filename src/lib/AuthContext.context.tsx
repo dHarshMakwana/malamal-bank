@@ -26,11 +26,7 @@ interface User {
   isVerified: boolean;
 }
 
-export const AuthContextProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null | DocumentData>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -39,12 +35,8 @@ export const AuthContextProvider = ({
 
   const unsubscribe = onAuthStateChanged(auth, (user) => {
     if (user) {
-      const id = user.uid;
-      const docRef = doc(db, "users", id);
-      // getDoc(docRef).then((doc) => {
-      //   console.log("dataaahjka", doc.data());
-      //   setUser(doc.data() as DocumentData);
-      // });
+      setUser(user);
+      // console.log(user);
     } else {
       setUser(null);
     }
@@ -96,7 +88,7 @@ export const AuthContextProvider = ({
         const id = user.user.uid;
         const docRef = doc(db, "users", id);
         getDoc(docRef).then((doc) => {
-          console.log("dataaaa", doc.data());
+          // console.log("dataaaa", doc.data());
           setUser(doc.data() as DocumentData);
         });
       })
@@ -146,3 +138,5 @@ export const AuthContextProvider = ({
     </AuthContext.Provider>
   );
 };
+
+export default AuthContextProvider;
