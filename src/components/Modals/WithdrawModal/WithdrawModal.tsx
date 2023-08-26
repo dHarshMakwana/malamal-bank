@@ -84,6 +84,7 @@ const WithdrawModal: FC<WithdrawProps> = ({
           value={amount}
           error={error.isError}
           errorMessage={error.message}
+          autoFocus
         />
         <div className={s.btnGroup}>
           <button

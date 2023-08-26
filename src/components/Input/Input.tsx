@@ -11,6 +11,8 @@ interface InputProps {
   value?: string | number;
   name?: string;
   errorMessage?: string;
+  inputRef?: any;
+  autoFocus?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -22,6 +24,8 @@ const Input: React.FC<InputProps> = ({
   value = "",
   name = "",
   errorMessage = "",
+  inputRef = null,
+  autoFocus = false,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -54,6 +58,8 @@ const Input: React.FC<InputProps> = ({
         placeholder={placeholder}
         value={value}
         name={name}
+        ref={inputRef}
+        autoFocus={autoFocus}
       />
       {error && <p className={s.labelError}>{errorMessage}</p>}
       {type === "password" && (
