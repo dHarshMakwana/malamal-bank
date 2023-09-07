@@ -37,6 +37,18 @@
           cursor: pointer;
         }
       }
+      .navItems {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        font-size: 3rem;
+        cursor: pointer;
+        .navItem {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+      }
     }
   }
 }

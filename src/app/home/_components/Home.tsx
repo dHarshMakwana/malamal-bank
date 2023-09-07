@@ -1,15 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import s from "../_styles/home.module.scss";
-import logo from "/public/logo.png";
-import Image from "next/image";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
-import DepositModal from "@modals/DepositModal";
-import WithdrawModal from "@modals/WithdrawModal";
-import Burger from "@components/Burger";
-import { useAuth } from "@/lib/AuthContext.context";
+import Greet from "./Greet";
+import Balance from "./Balance";
+import History from "./History";
+import Header from "./Header";
+import dynamic from "next/dynamic";
+
+const DepositModal = dynamic(() => import("@modals/DepositModal"), {
+  ssr: false,
+});
+const WithdrawModal = dynamic(() => import("@modals/WithdrawModal"), {
+  ssr: false,
+});
 
 const Home = () => {
   const value = {
@@ -22,11 +28,10 @@ const Home = () => {
     name: "",
   };
 
-  const router = useRouter();
   const [data, setData] = useState<any>(value);
   const [dipositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const { user } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!auth.currentUser) {
@@ -42,33 +47,36 @@ const Home = () => {
       };
       getData();
     }
-  }, [router]);
+  }, [auth]);
 
   const { name, history, balance } = data;
 
-  // console.log("first", auth.currentUser);
+  const openDeposit = () => {
+    setDepositOpen(true);
+  };
+
+  const openWithdraw = () => {
+    setWithdrawOpen(true);
+  };
+
+  const onSuccess = (newBalance: any, newHistory: any) => {
+    setData((prevData: any) => ({
+      ...prevData,
+      balance: newBalance,
+      history: newHistory,
+    }));
+  };
 
   return (
     <div className={s.container}>
-      <div className={s.header}>
-        <Image width={50} alt="" src={logo} />
-        {/* <span>log out</span> */}
-        <Burger />
-      </div>
-      <div className={s.hello}>
-        hello <span>{name}</span>
-      </div>
-      <div className={s.balance}>
-        Current Balance
-        <p>
-          ° <span>{balance}</span>
-        </p>
-      </div>
+      <Header />
+      <Greet name={name} />
+      <Balance balance={balance} />
       <div className={s.btnGrp}>
-        <div onClick={() => setWithdrawOpen(true)} className="btn-primary">
+        <div onClick={openWithdraw} className="btn-primary">
           withdraw
         </div>
-        <div onClick={() => setDepositOpen(true)} className="btn-secondary">
+        <div onClick={openDeposit} className="btn-secondary">
           deposit
         </div>
       </div>
@@ -76,45 +84,22 @@ const Home = () => {
         <p>History</p>
         <span>see all</span>
       </div>
-      <div className={s.history}>
-        {history &&
-          history.reverse().map((item: any, index: number) => (
-            <div key={index} className={s.historyItem}>
-              <div className="">{item.type}</div>
-              <div className={item.type == "deposit" ? s.green : s.red}>
-                {" "}
-                {item.type == "deposit" ? "+" : "-"} {item.amount}
-              </div>
-            </div>
-          ))}
-      </div>
+      <History history={history} />
       <DepositModal
         open={dipositOpen}
         onClose={() => setDepositOpen(false)}
-        userId={auth.currentUser?.uid as string}
+        userId={auth.currentUser?.uid || ""}
         balance={balance}
         history={history}
-        onSuccessDeposit={(newBalance, newHistory) => {
-          setData((prevData: any) => ({
-            ...prevData,
-            balance: newBalance,
-            history: newHistory,
-          }));
-        }}
+        onSuccessDeposit={onSuccess}
       />
       <WithdrawModal
         open={withdrawOpen}
         onClose={() => setWithdrawOpen(false)}
-        userId={auth.currentUser?.uid as string}
+        userId={auth.currentUser?.uid || ""}
         balance={balance}
         history={history}
-        onSuccessWithdraw={(newBalance, newHistory) => {
-          setData((prevData: any) => ({
-            ...prevData,
-            balance: newBalance,
-            history: newHistory,
-          }));
-        }}
+        onSuccessWithdraw={onSuccess}
       />
     </div>
   );

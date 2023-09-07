@@ -8,6 +8,7 @@
   justify-self: center;
   gap: 3rem;
   align-items: center;
+  color: #000;
   flex-direction: column;
   .header {
     display: flex;
@@ -45,6 +46,7 @@
       display: flex;
       align-items: center;
       span {
+        color: #000;
         background: transparent;
         font-size: 32px;
       }
