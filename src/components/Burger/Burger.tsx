@@ -8,6 +8,7 @@ import {
   AiOutlineQrcode,
   AiOutlineUser,
   AiOutlineSetting,
+  AiOutlineHistory,
 } from "react-icons/ai";
 import Link from "next/link";
 
@@ -21,14 +22,11 @@ const Burger: FC<HamburgerSidebarProps> = ({}) => {
   };
 
   const navItems = [
-    {
-      name: "Home",
-      icon: <AiOutlineHome />,
-      route: "/home",
-    },
-    { name: "Qr Scan", icon: <AiOutlineQrcode />, route: "/" },
-    { name: "Profile", icon: <AiOutlineUser />, route: "/" },
-    { name: "Settings", icon: <AiOutlineSetting />, route: "/" },
+    { name: "Home", icon: <AiOutlineHome />, route: "/home" },
+    { name: "Qr Scan", icon: <AiOutlineQrcode />, route: "/home" },
+    { name: "Profile", icon: <AiOutlineUser />, route: "/profile" },
+    { name: "Settings", icon: <AiOutlineSetting />, route: "/settings" },
+    { name: "History", icon: <AiOutlineHistory />, route: "/history" },
   ];
 
   return (
