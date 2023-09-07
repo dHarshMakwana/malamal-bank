@@ -3,6 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import s from "./burger.module.scss";
 import Image from "next/image";
 import logo from "/public/logo.png";
+import {
+  AiOutlineHome,
+  AiOutlineQrcode,
+  AiOutlineUser,
+  AiOutlineSetting,
+} from "react-icons/ai";
+import Link from "next/link";
 
 interface HamburgerSidebarProps {}
 
@@ -12,6 +19,17 @@ const Burger: FC<HamburgerSidebarProps> = ({}) => {
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
+
+  const navItems = [
+    {
+      name: "Home",
+      icon: <AiOutlineHome />,
+      route: "/home",
+    },
+    { name: "Qr Scan", icon: <AiOutlineQrcode />, route: "/" },
+    { name: "Profile", icon: <AiOutlineUser />, route: "/" },
+    { name: "Settings", icon: <AiOutlineSetting />, route: "/" },
+  ];
 
   return (
     <div className={s.sidebarContainer}>
@@ -30,6 +48,25 @@ const Burger: FC<HamburgerSidebarProps> = ({}) => {
               <div className={s.header}>
                 <Image width={50} alt="" src={logo} />
                 <div onClick={handleToggle}>close</div>
+              </div>
+              <div className={s.navItems}>
+                {navItems.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ x: -100, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: -100, opacity: 0 }}
+                    transition={{ delay: index * 0.2 }}
+                    onClick={handleToggle}
+                  >
+                    <Link href={item.route}>
+                      <div className={s.navItem}>
+                        {item.icon}
+                        {item.name}
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
               </div>
             </div>
           </motion.div>
