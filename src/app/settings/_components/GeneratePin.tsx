@@ -24,17 +24,26 @@ const GeneratePin = () => {
   const [data, setData] = useState<DocumentData | undefined>(value);
   const [pin, setPin] = useState<string>("");
   const router = useRouter();
+  const [isPinAvailable, setIsPinAvailable] = useState<boolean>();
   // const { generatePin } = useAuth();
 
   const generatePin = async (pin: string) => {
-    await setDoc(
-      doc(db, "users", data?.id),
-      {
-        pin: pin,
-      },
-      { merge: true }
-    );
-    toast.success("pin generated successfully");
+    if (checkPin(pin)) {
+      toast.error("new pin can't be same as old one");
+    } else if (pin !== "") {
+      await setDoc(
+        doc(db, "users", data?.id),
+        {
+          pin: pin,
+        },
+        { merge: true }
+      );
+      toast.success("pin generated successfully");
+      setIsPinAvailable(true);
+      setPin("");
+    } else {
+      toast.error("pin can't be set empty");
+    }
   };
 
   useEffect(() => {
@@ -49,9 +58,16 @@ const GeneratePin = () => {
           setData(docSnap.data());
         }
       };
+
       getData();
     }
   }, [auth]);
+
+  useEffect(() => {
+    if (data?.pin) {
+      setIsPinAvailable(true);
+    }
+  }, [data]);
 
   const checkPin = (enteredPin: string) => {
     if (data && data.pin === enteredPin) {
@@ -62,9 +78,12 @@ const GeneratePin = () => {
   };
 
   const handleGenerateButtonClick = (pin: string) => {
-    if (data?.pin) {
+    if (isPinAvailable) {
       if (checkPin(pin)) {
-        generatePin(pin);
+        setPin("");
+        setIsPinAvailable(false);
+      } else {
+        toast.error("incorrect pin, try again!");
       }
     } else {
       generatePin(pin);
@@ -83,7 +102,7 @@ const GeneratePin = () => {
         value={pin}
         type="pin"
       />
-      {data?.pin ? (
+      {isPinAvailable ? (
         <>
           <div className={s.bottomText}>
             Enter your old pin to create a new one
@@ -104,7 +123,7 @@ const GeneratePin = () => {
           onClick={() => handleGenerateButtonClick(pin)}
           className="btn-primary"
         >
-          {data?.pin ? "change pin" : "generate"}
+          {isPinAvailable ? "change pin" : "generate"}
         </div>
       </div>
     </div>
