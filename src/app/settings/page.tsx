@@ -1,9 +1,14 @@
 import React from "react";
-import s from "./settings.module.scss";
+import dynamic from "next/dynamic";
 
+const Settings = dynamic(() => import("./_components/Settings"));
 
 const settings = () => {
-  return <div>settings</div>;
+  return (
+    <>
+      <Settings />
+    </>
+  );
 };
 
 export default settings;
