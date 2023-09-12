@@ -1,7 +1,8 @@
-import Burger from "@/components/Burger/Burger";
+"use client"
+import Burger from "@/components/Burger";
 import Image from "next/image";
 import React from "react";
-import s from "../_styles/home.module.scss";
+import s from "./header.module.scss";
 import logo from "/public/logo.png";
 
 const Header = () => {
@@ -14,3 +15,4 @@ const Header = () => {
 };
 
 export default Header;
+       

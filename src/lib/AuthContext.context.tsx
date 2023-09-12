@@ -8,10 +8,12 @@ import {
   GoogleAuthProvider,
   signOut,
   GithubAuthProvider,
+  sendEmailVerification,
 } from "firebase/auth";
 import { auth, db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
 import { setDoc, doc, getDoc, DocumentData } from "firebase/firestore";
+import { toast } from "react-hot-toast";
 
 export const AuthContext = createContext<any>({});
 export const useAuth = () => useContext(AuthContext);
@@ -79,7 +81,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       isVerified: userData.user.emailVerified,
     });
 
-    router.push("/home");
+    router.push("/settings");
   };
 
   const login = async (email: string, password: string) => {
@@ -125,6 +127,17 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     router.push("/home");
   };
 
+  const generatePin = async (pin: string) => {
+    await setDoc(
+      doc(db, "users", user?.id),
+      {
+        pin: pin,
+      },
+      { merge: true }
+    );
+    toast.success("pin generated successfully");
+  };
+
   const logout = async () => {
     setUser(null);
     await signOut(auth).catch((error) => console.log(error));
@@ -132,7 +145,16 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, login, signup, logout, googleLogin, githubLogin }}
+      value={{
+        user,
+        setUser,
+        login,
+        signup,
+        logout,
+        googleLogin,
+        githubLogin,
+        generatePin,
+      }}
     >
       {loading ? children : children}
     </AuthContext.Provider>

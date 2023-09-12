@@ -1,0 +1,33 @@
+.container {
+  max-width: 378px;
+  margin: 0 auto;
+  background-color: black;
+  height: 100vh;
+  padding: 1rem;
+  display: flex;
+  justify-self: center;
+  gap: 3rem;
+  align-items: center;
+  flex-direction: column;
+  .GeneratePin {
+    .bottomText {
+      margin-top: 0.3rem;
+      cursor: pointer;
+      width: min-content;
+      white-space: nowrap;
+    }
+    .bottomText:hover {
+      color: #39ff14;
+    }
+    .btn {
+      display: flex;
+      margin-top: 0.5rem;
+      justify-content: flex-end;
+      div {
+        width: min-content;
+        cursor: pointer;
+        user-select: none;
+      }
+    }
+  }
+}

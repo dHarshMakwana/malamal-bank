@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import Greet from "./Greet";
 import Balance from "./Balance";
 import History from "./History";
-import Header from "./Header";
 import dynamic from "next/dynamic";
+import Header from "@/components/Header";
 
 const DepositModal = dynamic(() => import("@modals/DepositModal"), {
   ssr: false,
