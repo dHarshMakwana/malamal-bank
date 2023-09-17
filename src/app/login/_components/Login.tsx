@@ -7,7 +7,6 @@ import { auth } from "@/config/firebase";
 import {
   GithubAuthProvider,
   GoogleAuthProvider,
-  signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
 import { useRouter } from "next/navigation";

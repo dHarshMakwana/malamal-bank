@@ -1,10 +1,12 @@
-import React from 'react'
-import s from "./profile.module.scss"
+import React from "react";
+import Profile from "./_components/Profile";
 
 const profile = () => {
   return (
-    <div>profile</div>
-  )
-}
+    <>
+      <Profile />
+    </>
+  );
+};
 
-export default profile
+export default profile;

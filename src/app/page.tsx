@@ -1,6 +1,6 @@
 import Image from "next/image";
 import s from "./page.module.scss";
-import logo from "/public/logo.png";
+import logo from "/logo.png";
 import Link from "next/link";
 
 const Home = () => {
@@ -10,7 +10,7 @@ const Home = () => {
         MALAMAL <br /> <span>BANK</span>
       </div>
       <div className={s.vertMove}>
-        <Image alt="" src={logo} className={s.logo} />
+        <Image alt="" src={logo} className={s.logo} priority />
       </div>
       <div className={s.btnGroup}>
         <Link href="/signup">

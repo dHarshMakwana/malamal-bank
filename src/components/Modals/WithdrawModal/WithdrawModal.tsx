@@ -2,8 +2,7 @@ import React, { FC, useState } from "react";
 import Modal, { ModalProps } from "../Modal";
 import Input from "@components/Input";
 import s from "./modal.module.scss";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/config/firebase";
+import { useAuth } from "@/lib/AuthContext.context";
 
 interface WithdrawProps extends ModalProps {
   userId: string;
@@ -29,6 +28,8 @@ const WithdrawModal: FC<WithdrawProps> = ({
     setAmount(e.target.value);
   };
 
+  const { setUserDocument } = useAuth();
+
   const handleSubmit = () => {
     if (amount) {
       if (amount > 50000 && amount < 0) {
@@ -39,22 +40,17 @@ const WithdrawModal: FC<WithdrawProps> = ({
       } else {
         if (amount <= balance) {
           setError({ isError: false, message: "" });
-          setDoc(
-            doc(db, "users", userId),
-            {
-              balance: balance - amount,
-              history: [
-                ...history,
-                {
-                  type: "withdraw",
-                  amount: amount,
-                  date: new Date(),
-                },
-              ],
-              // withdrawLimit: 50000 - amount,
-            },
-            { merge: true }
-          ).then(() => {
+          setUserDocument({
+            balance: balance - amount,
+            history: [
+              ...history,
+              {
+                type: "withdraw",
+                amount: amount,
+                date: new Date(),
+              },
+            ],
+          }).then(() => {
             onSuccessWithdraw(balance - amount, [
               ...history,
               {
