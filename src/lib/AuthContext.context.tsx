@@ -81,7 +81,7 @@ export const useAuth = () => useContext<AuthContextProps>(AuthContext);
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | DocumentData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
