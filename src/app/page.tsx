@@ -1,6 +1,6 @@
 import Image from "next/image";
 import s from "./page.module.scss";
-import logo from "/logo.png";
+import logo from "/public/logo.png";
 import Link from "next/link";
 
 const Home = () => {

@@ -5,7 +5,6 @@ import s from "./modal.module.scss";
 import { useAuth } from "@/lib/AuthContext.context";
 
 interface DepositProps extends ModalProps {
-  userId: string;
   balance: number;
   history: object[];
   onSuccessDeposit: (newBalance: number, newHistory: object[]) => void;
@@ -14,48 +13,61 @@ interface DepositProps extends ModalProps {
 const DepositModal: FC<DepositProps> = ({
   onClose,
   open,
-  userId,
   balance,
   history,
   onSuccessDeposit,
 }) => {
-  const [amount, setAmount] = useState<number>();
+  const { setUserDocument } = useAuth();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [amount, setAmount] = useState<string>(""); // Change to string type
   const [error, setError] = useState({
     isError: false,
     message: "",
   });
-  const { setUserDocument } = useAuth();
-  const handleOnchange = (e: any) => {
-    setAmount(e.target.value);
-  };
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (inputValue === "" || /^\d+(\.\d{0,2})?$/.test(inputValue)) {
+      setAmount(inputValue);
+      setError({
+        isError: false,
+        message: "",
+      });
+    } else {
+      setError({
+        isError: true,
+        message:
+          "Invalid input. Please enter a valid number with up to 2 decimal places.",
+      });
+    }
+  };
 
   const handleSubmit = () => {
     if (amount) {
-      if (amount > 50000 && amount < 0) {
+      const parsedAmount = parseFloat(amount);
+      if (parsedAmount > 50000 || parsedAmount < 0) {
         setError({
           isError: true,
-          message: "you can't deposit more than 50000",
+          message: "You can't deposit more than 50000 or less than 0.",
         });
       } else {
         setError({ isError: false, message: "" });
         setUserDocument({
-          balance: balance + +amount,
+          balance: balance + parsedAmount,
           history: [
             ...history,
             {
               type: "deposit",
-              amount: amount,
+              amount: parsedAmount,
               date: new Date(),
             },
           ],
         }).then(() => {
-          onSuccessDeposit(balance + +amount, [
+          onSuccessDeposit(balance + parsedAmount, [
             ...history,
             {
               type: "deposit",
-              amount: amount,
+              amount: parsedAmount,
               date: new Date(),
             },
           ]);
@@ -71,14 +83,15 @@ const DepositModal: FC<DepositProps> = ({
       inputRef.current.focus();
     }
   }, []);
+
   return (
     <Modal open={open} onClose={onClose}>
       <div className={s.container}>
         <h1>Deposit some &#128184;</h1>
         <Input
           label={""}
-          placeholder={"enter amount"}
-          type="number"
+          placeholder={"Enter amount"}
+          type="text"
           onChange={handleOnchange}
           value={amount}
           error={error.isError}
@@ -89,7 +102,7 @@ const DepositModal: FC<DepositProps> = ({
           <button
             onClick={handleSubmit}
             className="btn-primary"
-            disabled={!amount}
+            disabled={!amount || error.isError}
           >
             Deposit
           </button>

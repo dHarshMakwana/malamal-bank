@@ -18,8 +18,21 @@ import {
 } from "firebase/auth";
 import { auth, db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
-import { setDoc, doc, getDoc, DocumentData } from "firebase/firestore";
+import {
+  setDoc,
+  doc,
+  getDoc,
+  DocumentData,
+  collection,
+  query,
+  where,
+  getDocs,
+  increment,
+  updateDoc,
+  addDoc,
+} from "firebase/firestore";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 interface AuthContextProps {
   user: User | DocumentData | null;
@@ -36,6 +49,10 @@ interface AuthContextProps {
   githubLogin: (account: number) => Promise<void>;
   checkPin: (pin: string) => boolean;
   setUserDocument: (dataToUpdate: Record<string, any>) => Promise<void>;
+  handleTransferFunds: (
+    reciverAccount: number,
+    amount: number
+  ) => Promise<void>;
 }
 
 export interface User {
@@ -76,6 +93,7 @@ export const AuthContext = createContext<AuthContextProps>({
   githubLogin: async (account: number) => {},
   checkPin: (pin: string) => false,
   setUserDocument: async (dataToUpdate: Record<string, any>) => {},
+  handleTransferFunds: async (reciverAccount, amount) => {},
 });
 export const useAuth = () => useContext<AuthContextProps>(AuthContext);
 
@@ -132,16 +150,19 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
     );
 
-    await setUserDocument({
-      name: name,
-      email: email,
-      id: userData.user.uid,
-      account: account,
-      balance: 500,
-      history: [],
-      isVerified: userData.user.emailVerified,
-      profilePicture: profilePicture.config.url,
-    });
+    await setUserDocument(
+      {
+        name: name,
+        email: email,
+        id: userData.user.uid,
+        account: account,
+        balance: 500,
+        history: [],
+        isVerified: userData.user.emailVerified,
+        profilePicture: profilePicture.config.url,
+      },
+      userData.user.uid
+    );
 
     setUser({
       name: name,
@@ -181,16 +202,19 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const profilePicture = await axios.get(
       `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
     );
-    await setUserDocument({
-      name: user.displayName,
-      email: user.email,
-      id: user.uid,
-      account: account,
-      balance: 500,
-      history: [],
-      isVerified: user.emailVerified,
-      profilePicture: profilePicture.config.url,
-    });
+    await setUserDocument(
+      {
+        name: user.displayName,
+        email: user.email,
+        id: user.uid,
+        account: account,
+        balance: 500,
+        history: [],
+        isVerified: user.emailVerified,
+        profilePicture: profilePicture.config.url,
+      },
+      user.uid
+    );
     router.push("/settings");
     setUser({
       name: user.displayName,
@@ -210,16 +234,19 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const profilePicture = await axios.get(
       `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
     );
-    setUserDocument({
-      name: user.displayName,
-      email: user.email,
-      id: user.uid,
-      account: account,
-      balance: 500,
-      history: [],
-      isVerified: user.emailVerified,
-      profilePicture: profilePicture.config.url,
-    });
+    setUserDocument(
+      {
+        name: user.displayName,
+        email: user.email,
+        id: user.uid,
+        account: account,
+        balance: 500,
+        history: [],
+        isVerified: user.emailVerified,
+        profilePicture: profilePicture.config.url,
+      },
+      user.uid
+    );
     setUser({
       name: user.displayName,
       email: user.email,
@@ -241,15 +268,42 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const setUserDocument = async (dataToUpdate: Record<string, any>) => {
-    const userId = user?.id;
+  const setUserDocument = async (
+    dataToUpdate: Record<string, any>,
+    userID?: string
+  ) => {
+    const userId = userID ?? user?.id;
     const userDocRef = doc(db, "users", userId);
 
     try {
       await setDoc(userDocRef, dataToUpdate, { merge: true });
-      console.log(`Document for user ${userId} updated successfully!`);
     } catch (error) {
-      console.error(`Error updating document for user ${userId}:`, error);
+      console.error(error);
+    }
+  };
+
+  const handleTransferFunds = async (
+    reciverAccount: number,
+    amount: number
+  ) => {
+    console.log("receiver's account", reciverAccount);
+    const q = query(
+      collection(db, "users"),
+      where("account", "==", reciverAccount)
+    );
+
+    try {
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.docs.length === 0) {
+        toast.error("No account found for the provided account");
+      } else {
+        querySnapshot.forEach((doc) => {
+          console.log(doc.data());
+        });
+      }
+    } catch (err) {
+      console.error("Error:", err);
     }
   };
 
@@ -269,6 +323,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         githubLogin,
         checkPin,
         setUserDocument,
+        handleTransferFunds,
       }}
     >
       {loading ? (
