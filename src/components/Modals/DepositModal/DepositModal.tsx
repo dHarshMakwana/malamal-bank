@@ -2,11 +2,9 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import Modal, { ModalProps } from "../Modal";
 import Input from "@components/Input";
 import s from "./modal.module.scss";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/config/firebase";
+import { useAuth } from "@/lib/AuthContext.context";
 
 interface DepositProps extends ModalProps {
-  userId: string;
   balance: number;
   history: object[];
   onSuccessDeposit: (newBalance: number, newHistory: object[]) => void;
@@ -15,52 +13,61 @@ interface DepositProps extends ModalProps {
 const DepositModal: FC<DepositProps> = ({
   onClose,
   open,
-  userId,
   balance,
   history,
   onSuccessDeposit,
 }) => {
-  const [amount, setAmount] = useState<number>();
+  const { setUserDocument } = useAuth();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [amount, setAmount] = useState<string>(""); // Change to string type
   const [error, setError] = useState({
     isError: false,
     message: "",
   });
-  const handleOnchange = (e: any) => {
-    setAmount(e.target.value);
-  };
 
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const handleOnchange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (inputValue === "" || /^\d+(\.\d{0,2})?$/.test(inputValue)) {
+      setAmount(inputValue);
+      setError({
+        isError: false,
+        message: "",
+      });
+    } else {
+      setError({
+        isError: true,
+        message:
+          "Invalid input. Please enter a valid number with up to 2 decimal places.",
+      });
+    }
+  };
 
   const handleSubmit = () => {
     if (amount) {
-      if (amount > 50000 && amount < 0) {
+      const parsedAmount = parseFloat(amount);
+      if (parsedAmount > 50000 || parsedAmount < 0) {
         setError({
           isError: true,
-          message: "you can't deposit more than 50000",
+          message: "You can't deposit more than 50000 or less than 0.",
         });
       } else {
         setError({ isError: false, message: "" });
-        setDoc(
-          doc(db, "users", userId),
-          {
-            balance: balance + +amount,
-            history: [
-              ...history,
-              {
-                type: "deposit",
-                amount: amount,
-                date: new Date(),
-              },
-            ],
-            // depositLimit: 50000 - amount,
-          },
-          { merge: true }
-        ).then(() => {
-          onSuccessDeposit(balance + +amount, [
+        setUserDocument({
+          balance: balance + parsedAmount,
+          history: [
             ...history,
             {
               type: "deposit",
-              amount: amount,
+              amount: parsedAmount,
+              date: new Date(),
+            },
+          ],
+        }).then(() => {
+          onSuccessDeposit(balance + parsedAmount, [
+            ...history,
+            {
+              type: "deposit",
+              amount: parsedAmount,
               date: new Date(),
             },
           ]);
@@ -71,19 +78,25 @@ const DepositModal: FC<DepositProps> = ({
     }
   };
 
+  const onModalClose = () => {
+    setAmount("");
+    onClose();
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, []);
+
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={onModalClose}>
       <div className={s.container}>
         <h1>Deposit some &#128184;</h1>
         <Input
           label={""}
-          placeholder={"enter amount"}
-          type="number"
+          placeholder={"Enter amount"}
+          type="text"
           onChange={handleOnchange}
           value={amount}
           error={error.isError}
@@ -94,7 +107,7 @@ const DepositModal: FC<DepositProps> = ({
           <button
             onClick={handleSubmit}
             className="btn-primary"
-            disabled={!amount}
+            disabled={!amount || error.isError}
           >
             Deposit
           </button>

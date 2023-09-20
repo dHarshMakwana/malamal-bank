@@ -1,5 +1,12 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   onAuthStateChanged,
   createUserWithEmailAndPassword,
@@ -8,17 +15,50 @@ import {
   GoogleAuthProvider,
   signOut,
   GithubAuthProvider,
-  sendEmailVerification,
 } from "firebase/auth";
 import { auth, db } from "@/config/firebase";
 import { useRouter } from "next/navigation";
-import { setDoc, doc, getDoc, DocumentData } from "firebase/firestore";
+import {
+  setDoc,
+  doc,
+  getDoc,
+  DocumentData,
+  collection,
+  query,
+  where,
+  getDocs,
+  increment,
+  arrayUnion,
+} from "firebase/firestore";
+import axios from "axios";
 import { toast } from "react-hot-toast";
 
-export const AuthContext = createContext<any>({});
-export const useAuth = () => useContext(AuthContext);
+interface AuthContextProps {
+  user: User | DocumentData | null;
+  setUser: Dispatch<SetStateAction<User | DocumentData>>;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (
+    email: string,
+    password: string,
+    name: string,
+    account: number
+  ) => Promise<void>;
+  logout: () => void;
+  googleLogin: (account: number) => Promise<void>;
+  githubLogin: (account: number) => Promise<void>;
+  checkPin: (pin: string) => boolean;
+  setUserDocument: (dataToUpdate: Record<string, any>) => Promise<void>;
+  handleTransferFunds: (
+    reciverAccount: number,
+    amount: number
+  ) => Promise<void>;
+  isAccountValid: (reciverAccount: number) => Promise<{
+    data: any;
+    isValid: boolean;
+  }>;
+}
 
-interface User {
+export interface User {
   name: string;
   email: string;
   id: string;
@@ -26,29 +66,81 @@ interface User {
   balance: number;
   history: any[];
   isVerified: boolean;
+  pin: null | string;
+  profilePicture: string;
 }
+export const value = {
+  account: "",
+  balance: 0,
+  email: "",
+  history: [],
+  id: "",
+  isVerified: false,
+  name: "",
+  pin: null,
+  profilePicture: "",
+};
+
+export const AuthContext = createContext<AuthContextProps>({
+  user: value,
+  setUser: setUser,
+  login: async (email: string, password: string) => {},
+  signup: async (
+    email: string,
+    password: string,
+    name: string,
+    account: number
+  ) => {},
+  logout: () => {},
+  googleLogin: async (account: number) => {},
+  githubLogin: async (account: number) => {},
+  checkPin: (pin: string) => false,
+  setUserDocument: async (dataToUpdate: Record<string, any>) => {},
+  handleTransferFunds: async (reciverAccount, amount) => {},
+  isAccountValid: async (receiverAccount) => {
+    const isValid = false;
+    const data = {};
+    return { data, isValid };
+  },
+});
+export const useAuth = () => useContext<AuthContextProps>(AuthContext);
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null | DocumentData>(null);
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<User | DocumentData | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
 
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    if (user) {
-      setUser(user);
-      // console.log(user);
-    } else {
-      setUser(null);
-    }
-    setLoading(false);
-  });
-
   useEffect(() => {
-    unsubscribe();
-    return () => unsubscribe();
+    const unsubscribe = onAuthStateChanged(auth, () => {
+      if (!auth.currentUser) {
+        router.push("/");
+        console.log("user nai hai");
+      } else {
+        console.log("user hai");
+        const getData = async () => {
+          if (auth.currentUser) {
+            const id = auth.currentUser.uid;
+            const docRef = doc(db, "users", id);
+            const docSnap = await getDoc(docRef);
+            setUser(docSnap.data() as User);
+            console.log(user);
+            console.log("user data", docSnap.data());
+            console.log("getting user data");
+          }
+        };
+        getData();
+        console.log("hello");
+      }
+      setLoading(false);
+    });
+    return () => {
+      unsubscribe();
+    };
   }, []);
+
+  console.log("user dataaaaa", user);
 
   const signup = async (
     email: string,
@@ -61,15 +153,24 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password
     );
-    await setDoc(doc(db, "users", userData.user.uid), {
-      name: name,
-      email: email,
-      id: userData.user.uid,
-      account: account,
-      balance: 500,
-      history: [],
-      isVerified: userData.user.emailVerified,
-    });
+
+    const profilePicture = await axios.get(
+      `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
+    );
+
+    await setUserDocument(
+      {
+        name: name,
+        email: email,
+        id: userData.user.uid,
+        account: account,
+        balance: 500,
+        history: [],
+        isVerified: userData.user.emailVerified,
+        profilePicture: profilePicture.config.url,
+      },
+      userData.user.uid
+    );
 
     setUser({
       name: name,
@@ -79,6 +180,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       balance: 500,
       history: [],
       isVerified: userData.user.emailVerified,
+      profilePicture: profilePicture.config.url,
     });
 
     router.push("/settings");
@@ -90,17 +192,39 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         const id = user.user.uid;
         const docRef = doc(db, "users", id);
         getDoc(docRef).then((doc) => {
-          // console.log("dataaaa", doc.data());
           setUser(doc.data() as DocumentData);
         });
       })
-      .then(() => router.push("/home"));
+      .then(() => {
+        if (user?.pin) {
+          router.push("/home");
+        } else {
+          router.push("/settings");
+        }
+      });
   };
 
   const googleLogin = async (account: number) => {
     const userData = await signInWithPopup(auth, googleProvider);
     const user = userData.user;
-    await setDoc(doc(db, "users", user.uid), {
+    const profilePicture = await axios.get(
+      `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
+    );
+    await setUserDocument(
+      {
+        name: user.displayName,
+        email: user.email,
+        id: user.uid,
+        account: account,
+        balance: 500,
+        history: [],
+        isVerified: user.emailVerified,
+        profilePicture: profilePicture.config.url,
+      },
+      user.uid
+    );
+    router.push("/settings");
+    setUser({
       name: user.displayName,
       email: user.email,
       id: user.uid,
@@ -108,14 +232,30 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       balance: 500,
       history: [],
       isVerified: user.emailVerified,
+      profilePicture: profilePicture.config.url,
     });
-    router.push("/home");
   };
 
   const githubLogin = async (account: number) => {
     const userData = await signInWithPopup(auth, githubProvider);
     const user = userData.user;
-    setDoc(doc(db, "users", user.uid), {
+    const profilePicture = await axios.get(
+      `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
+    );
+    setUserDocument(
+      {
+        name: user.displayName,
+        email: user.email,
+        id: user.uid,
+        account: account,
+        balance: 500,
+        history: [],
+        isVerified: user.emailVerified,
+        profilePicture: profilePicture.config.url,
+      },
+      user.uid
+    );
+    setUser({
       name: user.displayName,
       email: user.email,
       id: user.uid,
@@ -123,23 +263,115 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       balance: 500,
       history: [],
       isVerified: user.emailVerified,
+      profilePicture: profilePicture.config.url,
     });
-    router.push("/home");
+    router.push("/settings");
   };
 
-  const generatePin = async (pin: string) => {
-    await setDoc(
-      doc(db, "users", user?.id),
-      {
-        pin: pin,
-      },
-      { merge: true }
+  const checkPin = (enteredPin: string) => {
+    if (user && user.pin === enteredPin) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const setUserDocument = async (
+    dataToUpdate: Record<string, any>,
+    userID?: string
+  ) => {
+    const userId = userID ?? user?.id;
+    const userDocRef = doc(db, "users", userId);
+
+    try {
+      await setDoc(userDocRef, dataToUpdate, { merge: true });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const isAccountValid = async (receiverAccount: number) => {
+    const q = query(
+      collection(db, "users"),
+      where("account", "==", receiverAccount)
     );
-    toast.success("pin generated successfully");
+    try {
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.docs.length === 0) {
+        toast.error("No account found for the provided account number");
+        return { data: null, isValid: false };
+      }
+      const docData = querySnapshot.docs.map((doc) => doc.data());
+      console.log("docData", docData);
+      return { data: docData[0], isValid: true };
+    } catch (error) {
+      console.error("Error querying Firestore:", error);
+      throw error;
+    }
+  };
+
+  const handleTransferFunds = async (
+    reciverAccount: number,
+    amount: number
+  ) => {
+    console.log("receiver's account", reciverAccount);
+    const q = query(
+      collection(db, "users"),
+      where("account", "==", reciverAccount)
+    );
+
+    try {
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.docs.length === 0) {
+        toast.error("No account found for the provided account number");
+        return;
+      }
+      const docData = querySnapshot.docs.map((doc) => doc.data());
+      console.log("docData", docData);
+
+      // Transfer logic
+
+      if (amount > user?.balance) {
+        toast.error("insufficient funds");
+      } else {
+        await setUserDocument({
+          balance: increment(-amount),
+          history: arrayUnion({
+            amount: amount,
+            date: new Date(),
+            type: "transfer out",
+            to: reciverAccount,
+          }),
+        });
+        setUser({
+          ...user,
+          balance: user?.balance - amount,
+          history: [
+            ...user?.history,
+            { amount: amount, date: new Date(), type: "transfer out" },
+          ],
+        });
+        await setUserDocument(
+          {
+            balance: increment(amount),
+            history: arrayUnion({
+              amount: amount,
+              date: new Date(),
+              type: "transfer in",
+              from: reciverAccount,
+            }),
+          },
+          docData[0].id
+        );
+        toast.success("Transfer completed successfully");
+      }
+    } catch (error) {
+      console.error("Error querying Firestore:", error);
+      throw error;
+    }
   };
 
   const logout = async () => {
-    setUser(null);
     await signOut(auth).catch((error) => console.log(error));
   };
 
@@ -153,12 +385,22 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         logout,
         googleLogin,
         githubLogin,
-        generatePin,
+        checkPin,
+        setUserDocument,
+        handleTransferFunds,
+        isAccountValid,
       }}
     >
-      {loading ? children : children}
+      {loading ? (
+        <>
+          <h1 className="green-text">Loading</h1>
+        </>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };
 
 export default AuthContextProvider;
+function setUser(value: SetStateAction<User | DocumentData>): void {}

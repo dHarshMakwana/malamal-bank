@@ -1,3 +1,5 @@
+@import "../../../styles/variable.scss";
+
 .container {
   max-width: 378px;
   margin: 0 auto;
@@ -10,6 +12,11 @@
   align-items: center;
   color: #000;
   flex-direction: column;
+
+  @include devices(smMobileResolution) {
+    gap: 1.5rem;
+  }
+
   .header {
     display: flex;
     width: 100%;
@@ -39,6 +46,7 @@
     padding: 1rem 2rem;
     display: flex;
     flex-direction: column;
+    white-space: nowrap;
     p {
       color: #000;
       font-weight: 500;
