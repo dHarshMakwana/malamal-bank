@@ -78,6 +78,11 @@ const DepositModal: FC<DepositProps> = ({
     }
   };
 
+  const onModalClose = () => {
+    setAmount("");
+    onClose();
+  };
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -85,7 +90,7 @@ const DepositModal: FC<DepositProps> = ({
   }, []);
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={onModalClose}>
       <div className={s.container}>
         <h1>Deposit some &#128184;</h1>
         <Input

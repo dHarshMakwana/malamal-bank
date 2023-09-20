@@ -1,9 +1,10 @@
 import Input from "@/components/Input";
-import { useAuth } from "@/lib/AuthContext.context";
+import { User, useAuth } from "@/lib/AuthContext.context";
 import React, { FC, useEffect, useRef, useState } from "react";
 import Modal, { ModalProps } from "../Modal";
 import s from "./modal.module.scss";
 import { toast } from "react-hot-toast";
+import Image from "next/image";
 
 interface TransferProps extends ModalProps {
   onSuccessTransfer?: (newBalance: number, newHistory: object[]) => void;
@@ -14,9 +15,11 @@ const TransferModal: FC<TransferProps> = ({
   open,
   onSuccessTransfer,
 }) => {
-  const { handleTransferFunds } = useAuth();
+  const { handleTransferFunds, isAccountValid } = useAuth();
   const [amount, setAmount] = useState<string>("");
   const [account, setAccount] = useState<string>();
+  const [isAccountCorrect, setIsAccountCorrect] = useState<boolean>(false);
+  const [data, setData] = useState<User | null>();
   const [error, setError] = useState({
     isError: false,
     message: "",
@@ -51,7 +54,13 @@ const TransferModal: FC<TransferProps> = ({
     setAccount(e.target.value);
   };
 
-  const handleSubmit = () => {
+  const checkAccount = async () => {
+    const query = await isAccountValid(Number(account));
+    setIsAccountCorrect(query.isValid);
+    setData(query.data);
+  };
+
+  const handleSubmit = async () => {
     if (!amount) {
       return;
     }
@@ -75,43 +84,93 @@ const TransferModal: FC<TransferProps> = ({
       return;
     }
 
-    handleTransferFunds(Number(account), Number(amount));
+    await handleTransferFunds(Number(account), Number(amount));
+    onModalClose();
   };
 
+  const onModalClose = () => {
+    setAmount("");
+    setAccount("");
+    setIsAccountCorrect(false);
+    setData(null);
+    setError({
+      isError: false,
+      message: "",
+    });
+    setAccError({
+      isError: false,
+      message: "",
+    });
+    onClose();
+  };
+
+  const { account: accountNum, profilePicture, name } = data ?? {};
+
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={onModalClose}>
       <div className={s.container}>
         <h1>Transfer some &#128184;</h1>
-        <Input
-          label={"Account Number"}
-          placeholder={"Enter account number"}
-          type="number"
-          onChange={handleInputChange}
-          value={account}
-          error={accError.isError}
-          errorMessage={accError.message}
-          autoFocus
-        />
-        <Input
-          label={"Amount"}
-          placeholder={"Enter amount"}
-          type="text"
-          onChange={handleOnchange}
-          value={amount}
-          error={error.isError}
-          errorMessage={error.message}
-          autoFocus
-        />
-
-        <div className={s.btnGroup}>
-          <button
-            onClick={handleSubmit}
-            className="btn-primary"
-            disabled={!amount || error.isError}
-          >
-            Tranfer
-          </button>
-        </div>
+        {!isAccountCorrect ? (
+          <>
+            <Input
+              label={"Account Number"}
+              placeholder={"Enter account number"}
+              type="number"
+              onChange={handleInputChange}
+              value={account}
+              error={accError.isError}
+              errorMessage={accError.message}
+              autoFocus
+            />
+            <div className={s.btnGroup}>
+              <button
+                onClick={checkAccount}
+                className="btn-primary"
+                disabled={!account || accError.isError}
+              >
+                Check
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {data && (
+              <>
+                <div className={s.profile}>
+                  <Image
+                    src={profilePicture as string}
+                    alt={name as string}
+                    width={60}
+                    height={60}
+                  />
+                  <div className={s.profileDetails}>
+                    <div className={s.name}>{name}</div>
+                    <div>{accountNum}</div>
+                  </div>
+                </div>
+              </>
+            )}
+            <Input
+              label={"Amount"}
+              placeholder={"Enter amount"}
+              type="text"
+              onChange={handleOnchange}
+              value={amount}
+              error={error.isError}
+              errorMessage={error.message}
+              autoFocus
+            />
+            <div className={s.btnGroup}>
+              <button
+                onClick={handleSubmit}
+                className="btn-primary"
+                disabled={!amount || error.isError}
+              >
+                Tranfer
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   );

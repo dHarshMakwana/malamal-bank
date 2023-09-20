@@ -46,7 +46,6 @@ const Input: React.FC<InputProps> = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (type === "pin") {
-      // Restrict input to only allow up to 4 numbers
       const inputValue = e.target.value.replace(/\D/g, "").slice(0, 4);
       e.target.value = inputValue;
     }
@@ -71,14 +70,14 @@ const Input: React.FC<InputProps> = ({
         name={name}
         ref={inputRef}
         autoFocus={autoFocus}
-        // maxLength={maxLength} // Set the maxLength property
       />
       {error && <p className={s.labelError}>{errorMessage}</p>}
-      {type === "password" || type === "pin" && (
-        <span className={s.passwordToggle} onClick={handleTogglePassword}>
-          {showPassword ? <FiEyeOff /> : <FiEye />}
-        </span>
-      )}
+      {type === "password" ||
+        (type === "pin" && (
+          <span className={s.passwordToggle} onClick={handleTogglePassword}>
+            {showPassword ? <FiEyeOff /> : <FiEye />}
+          </span>
+        ))}
     </div>
   );
 };

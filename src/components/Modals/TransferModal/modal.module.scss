@@ -6,4 +6,19 @@
     margin-left: auto;
     width: min-content;
   }
+  .profile {
+    display: flex;
+    width: 70%;
+    margin: 0 auto;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    .profileDetails {
+        .name {
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0.1rem;
+        }
+    }
+  }
 }

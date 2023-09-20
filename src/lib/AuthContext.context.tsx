@@ -28,8 +28,7 @@ import {
   where,
   getDocs,
   increment,
-  updateDoc,
-  addDoc,
+  arrayUnion,
 } from "firebase/firestore";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -53,6 +52,10 @@ interface AuthContextProps {
     reciverAccount: number,
     amount: number
   ) => Promise<void>;
+  isAccountValid: (reciverAccount: number) => Promise<{
+    data: any;
+    isValid: boolean;
+  }>;
 }
 
 export interface User {
@@ -94,6 +97,11 @@ export const AuthContext = createContext<AuthContextProps>({
   checkPin: (pin: string) => false,
   setUserDocument: async (dataToUpdate: Record<string, any>) => {},
   handleTransferFunds: async (reciverAccount, amount) => {},
+  isAccountValid: async (receiverAccount) => {
+    const isValid = false;
+    const data = {};
+    return { data, isValid };
+  },
 });
 export const useAuth = () => useContext<AuthContextProps>(AuthContext);
 
@@ -282,6 +290,26 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const isAccountValid = async (receiverAccount: number) => {
+    const q = query(
+      collection(db, "users"),
+      where("account", "==", receiverAccount)
+    );
+    try {
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.docs.length === 0) {
+        toast.error("No account found for the provided account number");
+        return { data: null, isValid: false };
+      }
+      const docData = querySnapshot.docs.map((doc) => doc.data());
+      console.log("docData", docData);
+      return { data: docData[0], isValid: true };
+    } catch (error) {
+      console.error("Error querying Firestore:", error);
+      throw error;
+    }
+  };
+
   const handleTransferFunds = async (
     reciverAccount: number,
     amount: number
@@ -294,16 +322,52 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const querySnapshot = await getDocs(q);
-
       if (querySnapshot.docs.length === 0) {
-        toast.error("No account found for the provided account");
-      } else {
-        querySnapshot.forEach((doc) => {
-          console.log(doc.data());
-        });
+        toast.error("No account found for the provided account number");
+        return;
       }
-    } catch (err) {
-      console.error("Error:", err);
+      const docData = querySnapshot.docs.map((doc) => doc.data());
+      console.log("docData", docData);
+
+      // Transfer logic
+
+      if (amount > user?.balance) {
+        toast.error("insufficient funds");
+      } else {
+        await setUserDocument({
+          balance: increment(-amount),
+          history: arrayUnion({
+            amount: amount,
+            date: new Date(),
+            type: "transfer out",
+            to: reciverAccount,
+          }),
+        });
+        setUser({
+          ...user,
+          balance: user?.balance - amount,
+          history: [
+            ...user?.history,
+            { amount: amount, date: new Date(), type: "transfer out" },
+          ],
+        });
+        await setUserDocument(
+          {
+            balance: increment(amount),
+            history: arrayUnion({
+              amount: amount,
+              date: new Date(),
+              type: "transfer in",
+              from: reciverAccount,
+            }),
+          },
+          docData[0].id
+        );
+        toast.success("Transfer completed successfully");
+      }
+    } catch (error) {
+      console.error("Error querying Firestore:", error);
+      throw error;
     }
   };
 
@@ -324,6 +388,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         checkPin,
         setUserDocument,
         handleTransferFunds,
+        isAccountValid,
       }}
     >
       {loading ? (

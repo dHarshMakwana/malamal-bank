@@ -12,9 +12,15 @@ const History: FC<HistoryProps> = ({ history }) => {
         history.reverse().map((item: any, index: number) => (
           <div key={index} className={s.historyItem}>
             <div className="">{item.type}</div>
-            <div className={item.type == "deposit" ? s.green : s.red}>
-              {" "}
-              {item.type == "deposit" ? "+" : "-"} {item.amount}
+            <div
+              className={
+                item.type == "deposit" || item.type == "transfer in"
+                  ? s.green
+                  : s.red
+              }
+            >
+              {item.type == "deposit" || item.type == "transfer in" ? "+" : "-"}
+              {item.amount}
             </div>
           </div>
         ))}

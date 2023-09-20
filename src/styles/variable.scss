@@ -1,6 +1,7 @@
 $mobileResolution: 767px;
 $tabResolution: 768px;
 $ipadProResolution: 1024px;
+$smMobileResolution: 300px;
 
 @mixin devices($breakpoint) {
   @if $breakpoint == ipad {
@@ -17,6 +18,11 @@ $ipadProResolution: 1024px;
 
   @if $breakpoint == mobile {
     @media only screen and (max-width: $mobileResolution) {
+      @content;
+    }
+  }
+  @if $breakpoint == smMobileResolution {
+    @media only screen and (max-width: $smMobileResolution) {
       @content;
     }
   }
