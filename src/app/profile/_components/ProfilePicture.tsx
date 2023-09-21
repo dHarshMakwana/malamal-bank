@@ -10,8 +10,6 @@ const ProfilePicture = () => {
     user?.profilePicture
   );
 
-  console.log("profile picture", user?.profilePicture);
-
   const readURL = () => {
     const input = fileInputRef.current;
     if (input && input.files && input.files[0]) {
