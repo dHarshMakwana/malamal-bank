@@ -32,6 +32,7 @@ import {
 } from "firebase/firestore";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import Loader from "@/components/Loader";
 
 interface AuthContextProps {
   user: User | DocumentData | null;
@@ -382,7 +383,7 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     >
       {loading ? (
         <>
-          <h1 className="green-text">Loading</h1>
+          <Loader />
         </>
       ) : (
         children
