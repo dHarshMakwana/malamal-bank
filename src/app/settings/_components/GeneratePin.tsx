@@ -28,7 +28,6 @@ const GeneratePin = () => {
       }
     } catch (error) {
       console.log(error);
-      console.log("user", user);
     }
   };
 

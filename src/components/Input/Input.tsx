@@ -4,16 +4,17 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface InputProps {
   label: string;
-  placeholder: string;
-  onChange: (value: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  onChange?: (value: React.ChangeEvent<HTMLInputElement>) => void;
   error?: boolean;
-  type?: "text" | "password" | "pin" | "number"; // Add 'pin' as a valid type
+  type?: "text" | "password" | "pin" | "number";
   value?: string | number;
   name?: string;
   errorMessage?: string;
   inputRef?: any;
   autoFocus?: boolean;
   maxLength?: number; // Add maxLength property
+  readOnly?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -27,6 +28,7 @@ const Input: React.FC<InputProps> = ({
   errorMessage = "",
   inputRef = null,
   autoFocus = false,
+  readOnly = false
   // maxLength = 4, // Set the default maxLength to 4 for "pin" type
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -49,7 +51,7 @@ const Input: React.FC<InputProps> = ({
       const inputValue = e.target.value.replace(/\D/g, "").slice(0, 4);
       e.target.value = inputValue;
     }
-    onChange(e);
+    onChange?.(e);
   };
 
   return (
@@ -70,14 +72,16 @@ const Input: React.FC<InputProps> = ({
         name={name}
         ref={inputRef}
         autoFocus={autoFocus}
+        readOnly={readOnly}
       />
       {error && <p className={s.labelError}>{errorMessage}</p>}
-      {type === "password" ||
-        (type === "pin" && (
-          <span className={s.passwordToggle} onClick={handleTogglePassword}>
-            {showPassword ? <FiEyeOff /> : <FiEye />}
-          </span>
-        ))}
+      {type === "password" || type === "pin" ? (
+        <span className={s.passwordToggle} onClick={handleTogglePassword}>
+          {showPassword ? <FiEyeOff /> : <FiEye />}
+        </span>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

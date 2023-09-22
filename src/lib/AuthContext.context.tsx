@@ -117,22 +117,16 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, () => {
       if (!auth.currentUser) {
         router.push("/");
-        console.log("user nai hai");
       } else {
-        console.log("user hai");
         const getData = async () => {
           if (auth.currentUser) {
             const id = auth.currentUser.uid;
             const docRef = doc(db, "users", id);
             const docSnap = await getDoc(docRef);
             setUser(docSnap.data() as User);
-            console.log(user);
-            console.log("user data", docSnap.data());
-            console.log("getting user data");
           }
         };
         getData();
-        console.log("hello");
       }
       setLoading(false);
     });
@@ -140,8 +134,6 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       unsubscribe();
     };
   }, []);
-
-  console.log("user dataaaaa", user);
 
   const signup = async (
     email: string,
@@ -303,7 +295,6 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         return { data: null, isValid: false };
       }
       const docData = querySnapshot.docs.map((doc) => doc.data());
-      console.log("docData", docData);
       return { data: docData[0], isValid: true };
     } catch (error) {
       console.error("Error querying Firestore:", error);
@@ -315,7 +306,6 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     reciverAccount: number,
     amount: number
   ) => {
-    console.log("receiver's account", reciverAccount);
     const q = query(
       collection(db, "users"),
       where("account", "==", reciverAccount)
@@ -328,7 +318,6 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
       const docData = querySnapshot.docs.map((doc) => doc.data());
-      console.log("docData", docData);
 
       // Transfer logic
 
