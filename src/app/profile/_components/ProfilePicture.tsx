@@ -1,21 +1,30 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import s from "../_styles/profile.module.scss";
 import { useAuth } from "@/lib/AuthContext.context";
 
 const ProfilePicture = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
-  const [image, setImage] = useState<string | ArrayBuffer | null | undefined>(
-    user?.profilePicture
-  );
+  const [image, setImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedImage = localStorage.getItem("profilePicture");
+    if (savedImage) {
+      setImage(savedImage);
+    } else {
+      setImage(user?.profilePicture || null);
+    }
+  }, [user]);
 
   const readURL = () => {
     const input = fileInputRef.current;
     if (input && input.files && input.files[0]) {
       const reader = new FileReader();
       reader.onload = function (e) {
-        setImage(e.target?.result);
+        const imageData = e.target?.result as string;
+        setImage(imageData);
+        localStorage.setItem("profilePicture", imageData); // Save to local storage
       };
       reader.readAsDataURL(input.files[0]);
     }
@@ -26,9 +35,13 @@ const ProfilePicture = () => {
   };
 
   return (
-    user && (
+    user?.profilePicture && (
       <>
-        <label htmlFor="imageUpload" className={s.avatarUpload}>
+        <label
+          title="click to change avatar"
+          htmlFor="imageUpload"
+          className={s.avatarUpload}
+        >
           <div className={s.avatarEdit}>
             <input
               type="file"
