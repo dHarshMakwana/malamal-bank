@@ -18,10 +18,12 @@ do
         touch "$FOLDER/$PROJECT_NAME.module.scss"
     elif [ $FOLDER == "_components" ]; then
         echo "import React from 'react';
-        import '../_styles/$PROJECT_NAME.module.scss';
+        import s from '../_styles/$PROJECT_NAME.module.scss';
 
-        const $PROJECT_NAME: React.FC = () => {
-          return <div>{'$PROJECT_NAME Component'}</div>;
+        const $PROJECT_NAME = () => {
+         <>
+           <div className={s.container}> $PROJECT_NAME Component </div>
+         </>
         };
 
         export default ${PROJECT_NAME};" > "$FOLDER/$PROJECT_NAME.tsx"
