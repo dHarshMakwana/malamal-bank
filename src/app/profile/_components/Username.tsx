@@ -1,9 +1,13 @@
 "use client";
 import Input from "@/components/Input";
-import React, { useState } from "react";
+import { useAuth } from "@/lib/AuthContext.context";
+import useLocalStorage from "@/utils/useLocalStorage";
+import React from "react";
 
 const Username = () => {
-  const [username, setUsername] = useState("");
+  const { user } = useAuth();
+  const [username, setUsername] = useLocalStorage("username", user?.name || "");
+
   return (
     <div>
       <Input
@@ -14,6 +18,5 @@ const Username = () => {
     </div>
   );
 };
-
 
 export default Username;
