@@ -23,7 +23,7 @@ const Burger: FC<HamburgerSidebarProps> = ({}) => {
 
   const navItems = [
     { name: "Home", icon: <AiOutlineHome />, route: "/home" },
-    { name: "Qr Scan", icon: <AiOutlineQrcode />, route: "/home" },
+    { name: "Qr Scan", icon: <AiOutlineQrcode />, route: "/qrscan" },
     { name: "Profile", icon: <AiOutlineUser />, route: "/profile" },
     { name: "Settings", icon: <AiOutlineSetting />, route: "/settings" },
     { name: "History", icon: <AiOutlineHistory />, route: "/history" },

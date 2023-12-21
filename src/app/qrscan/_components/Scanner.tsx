@@ -23,6 +23,9 @@ const Scanner = () => {
       backgroundOptions: {
         color: "#000",
       },
+      qrOptions: {
+        mode: "Byte"
+      },
       imageOptions: {
         crossOrigin: "anonymous",
         margin: 15,
