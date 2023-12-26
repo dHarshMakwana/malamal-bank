@@ -34,7 +34,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import Loader from "@/components/Loader";
 
-interface AuthContextProps {
+interface IAuthenticationService {
   user: User | DocumentData | null;
   setUser: Dispatch<SetStateAction<User | DocumentData>>;
   login: (email: string, password: string) => Promise<void>;
@@ -57,6 +57,14 @@ interface AuthContextProps {
     data: any;
     isValid: boolean;
   }>;
+}
+
+interface ITransaction {
+  amount: number;
+  date: Date;
+  type: string;
+  to?: number;
+  from?: number;
 }
 
 export interface User {
@@ -82,29 +90,33 @@ export const value = {
   profilePicture: "",
 };
 
-export const AuthContext = createContext<AuthContextProps>({
-  user: value,
-  setUser: setUser,
-  login: async (email: string, password: string) => {},
-  signup: async (
-    email: string,
-    password: string,
-    name: string,
-    account: number
-  ) => {},
-  logout: () => {},
-  googleLogin: async (account: number) => {},
-  githubLogin: async (account: number) => {},
-  checkPin: (pin: string) => false,
-  setUserDocument: async (dataToUpdate: Record<string, any>) => {},
-  handleTransferFunds: async (reciverAccount, amount) => {},
-  isAccountValid: async (receiverAccount) => {
-    const isValid = false;
-    const data = {};
-    return { data, isValid };
-  },
+const dummyAsyncFunction: (...args: any[]) => Promise<void> = async () => {
+  // This function acts as a placeholder and does nothing
+};
+
+const checkPinDummy: (pin: string) => boolean = (pin) => false;
+
+const isAccountValidDummy: (
+  account: number
+) => Promise<{ data: Record<string, any>; isValid: boolean }> = async () => ({
+  data: {},
+  isValid: false,
 });
-export const useAuth = () => useContext<AuthContextProps>(AuthContext);
+
+export const AuthContext = createContext<IAuthenticationService>({
+  user: value,
+  setUser: dummyAsyncFunction,
+  login: dummyAsyncFunction,
+  signup: dummyAsyncFunction,
+  logout: dummyAsyncFunction,
+  googleLogin: dummyAsyncFunction,
+  githubLogin: dummyAsyncFunction,
+  checkPin: checkPinDummy,
+  setUserDocument: dummyAsyncFunction,
+  handleTransferFunds: dummyAsyncFunction,
+  isAccountValid: isAccountValidDummy,
+});
+export const useAuth = () => useContext<IAuthenticationService>(AuthContext);
 
 const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | DocumentData | null>(null);
@@ -141,61 +153,80 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     name: string,
     account: number
   ) => {
-    const userData = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
+    try {
+      const { user: firebaseUser } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      if (!firebaseUser) {
+        toast.error("Failed to create user");
+      }
 
-    const profilePicture = await axios.get(
-      `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
-    );
+      let profilePictureUrl: string;
+      try {
+        const profilePicture = await axios.get(
+          `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
+        );
+        profilePictureUrl = profilePicture.config.url || "";
+      } catch (error) {
+        console.error("Failed to fetch profile picture:", error);
+        profilePictureUrl = "";
+      }
 
-    await setUserDocument(
-      {
-        name: name,
-        email: email,
-        id: userData.user.uid,
-        account: account,
+      const config: User = {
+        name,
+        email,
+        id: firebaseUser.uid,
+        account,
         balance: 500,
         history: [],
-        isVerified: userData.user.emailVerified,
-        profilePicture: profilePicture.config.url,
-      },
-      userData.user.uid
-    );
+        isVerified: firebaseUser.emailVerified,
+        pin: null,
+        profilePicture: profilePictureUrl,
+      };
 
-    setUser({
-      name: name,
-      email: email,
-      id: userData.user.uid,
-      account: account,
-      balance: 500,
-      history: [],
-      isVerified: userData.user.emailVerified,
-      profilePicture: profilePicture.config.url,
-    });
-
-    router.push("/settings");
+      await setUserDocument(config, firebaseUser.uid);
+      setUser(config);
+      router.push("/settings");
+    } catch (error) {
+      console.error("Signup failed:", error);
+    }
   };
 
-  const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password)
-      .then((user) => {
-        const id = user.user.uid;
+  const login = async (email: string, password: string): Promise<void> => {
+    try {
+      const { user: firebaseUser } = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      if (firebaseUser) {
+        const id = firebaseUser.uid;
         const docRef = doc(db, "users", id);
-        getDoc(docRef).then((doc) => {
-          setUser(doc.data() as DocumentData);
-        });
-      })
-      .then(() => {
-        if (user?.pin) {
-          router.push("/home");
+        const docData = await getDoc(docRef);
+
+        if (docData.exists()) {
+          const userData = docData.data() as DocumentData;
+          setUser(userData);
+
+          if (userData?.pin) {
+            router.push("/home");
+          } else {
+            router.push("/settings");
+          }
         } else {
-          router.push("/settings");
+          console.log("No such user found.");
+          toast.error("No such user");
         }
-      });
+      }
+    } catch (error) {
+      console.error("Authentication failed:", error);
+    }
   };
+
+  // KEY: google and github login from here is used only in sign in NOT FOR LOGIN
 
   const googleLogin = async (account: number) => {
     const userData = await signInWithPopup(auth, googleProvider);
@@ -203,21 +234,8 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const profilePicture = await axios.get(
       `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
     );
-    await setUserDocument(
-      {
-        name: user.displayName,
-        email: user.email,
-        id: user.uid,
-        account: account,
-        balance: 500,
-        history: [],
-        isVerified: user.emailVerified,
-        profilePicture: profilePicture.config.url,
-      },
-      user.uid
-    );
-    router.push("/settings");
-    setUser({
+
+    const config = {
       name: user.displayName,
       email: user.email,
       id: user.uid,
@@ -226,7 +244,12 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       history: [],
       isVerified: user.emailVerified,
       profilePicture: profilePicture.config.url,
-    });
+    };
+
+    setUserDocument(config, user.uid);
+    setUser(config);
+
+    router.push("/settings");
   };
 
   const githubLogin = async (account: number) => {
@@ -235,20 +258,8 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     const profilePicture = await axios.get(
       `https://api.multiavatar.com/${account}.png?apikey=O8yIjl9JkQD60v`
     );
-    setUserDocument(
-      {
-        name: user.displayName,
-        email: user.email,
-        id: user.uid,
-        account: account,
-        balance: 500,
-        history: [],
-        isVerified: user.emailVerified,
-        profilePicture: profilePicture.config.url,
-      },
-      user.uid
-    );
-    setUser({
+
+    const config = {
       name: user.displayName,
       email: user.email,
       id: user.uid,
@@ -257,16 +268,18 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
       history: [],
       isVerified: user.emailVerified,
       profilePicture: profilePicture.config.url,
-    });
+    };
+
+    setUserDocument(config, user.uid);
+    setUser(config);
     router.push("/settings");
   };
 
   const checkPin = (enteredPin: string) => {
-    if (user && user.pin === enteredPin) {
-      return true;
-    } else {
+    if (!user) {
       return false;
     }
+    return user.pin === enteredPin;
   };
 
   const setUserDocument = async (
@@ -279,21 +292,23 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await setDoc(userDocRef, dataToUpdate, { merge: true });
     } catch (error) {
-      console.error(error);
+      console.error("Error updating user document:", error);
     }
   };
 
   const isAccountValid = async (receiverAccount: number) => {
-    const q = query(
+    const accountQuery = query(
       collection(db, "users"),
       where("account", "==", receiverAccount)
     );
     try {
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.docs.length === 0) {
-        toast.error("No account found for the provided account number");
-        return { data: null, isValid: false };
+      const querySnapshot = await getDocs(accountQuery);
+
+      if (!querySnapshot || querySnapshot.empty) {
+        toast.error("No User found");
+        throw new Error("No account found for the provided account number");
       }
+
       const docData = querySnapshot.docs.map((doc) => doc.data());
       return { data: docData[0], isValid: true };
     } catch (error) {
@@ -306,55 +321,62 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     reciverAccount: number,
     amount: number
   ) => {
-    const q = query(
+    const accountQuery = query(
       collection(db, "users"),
       where("account", "==", reciverAccount)
     );
 
     try {
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(accountQuery);
       if (querySnapshot.docs.length === 0) {
         toast.error("No account found for the provided account number");
         return;
       }
-      const docData = querySnapshot.docs.map((doc) => doc.data());
 
-      // Transfer logic
+      const receiverData = querySnapshot.docs.map((doc) => doc.data());
 
-      if (amount > user?.balance) {
-        toast.error("insufficient funds");
-      } else {
-        await setUserDocument({
-          balance: increment(-amount),
-          history: arrayUnion({
-            amount: amount,
-            date: new Date(),
-            type: "transfer out",
-            to: reciverAccount,
-          }),
-        });
-        setUser({
-          ...user,
-          balance: user?.balance - amount,
-          history: [
-            ...user?.history,
-            { amount: amount, date: new Date(), type: "transfer out" },
-          ],
-        });
-        await setUserDocument(
-          {
-            balance: increment(amount),
-            history: arrayUnion({
-              amount: amount,
-              date: new Date(),
-              type: "transfer in",
-              from: reciverAccount,
-            }),
-          },
-          docData[0].id
-        );
-        toast.success("Transfer completed successfully");
+      if (!user || amount > user.balance) {
+        toast.error("Insufficient funds");
+        return;
       }
+
+      const outgoingTransaction: ITransaction = {
+        amount: amount,
+        date: new Date(),
+        type: "transfer out",
+        to: reciverAccount,
+      };
+
+      const incomingTransaction: ITransaction = {
+        amount: amount,
+        date: new Date(),
+        type: "transfer in",
+        from: user.account,
+      };
+
+      await setUserDocument({
+        balance: increment(-amount),
+        history: arrayUnion(outgoingTransaction),
+      });
+
+      await setUserDocument(
+        {
+          balance: increment(amount),
+          history: arrayUnion(incomingTransaction),
+        },
+        receiverData[0].id
+      );
+
+      // If you need to update the user object in the state or elsewhere
+      const updatedUser = {
+        ...user,
+        balance: user.balance - amount,
+        history: [...user.history, outgoingTransaction],
+      };
+
+      setUser(updatedUser);
+
+      toast.success("Transfer completed successfully");
     } catch (error) {
       console.error("Error querying Firestore:", error);
       throw error;
@@ -362,7 +384,12 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    await signOut(auth).catch((error) => console.log(error));
+    try {
+      await signOut(auth);
+      toast.success("logged out successfully");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -393,4 +420,3 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default AuthContextProvider;
-function setUser(value: SetStateAction<User | DocumentData>): void {}
