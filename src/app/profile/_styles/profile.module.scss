@@ -9,10 +9,17 @@
   gap: 3rem;
   align-items: center;
   flex-direction: column;
+  .imgContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+  }
   .avatarUpload {
     position: relative;
     max-width: 205px;
-    margin: 50px auto;
+    margin: 30px auto;
     cursor: pointer;
   }
   .avatarUpload .avatarEdit {
@@ -41,5 +48,14 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
+  }
+
+  .reset {
+    cursor: pointer;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
 }
