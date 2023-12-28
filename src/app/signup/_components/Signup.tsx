@@ -9,6 +9,7 @@ import github from "/public/github.svg";
 import google from "/public/google.svg";
 import { generateRandomNumber } from "@/utils/randomGenerator";
 import { useAuth } from "@/lib/AuthContext.context";
+import { useRouter } from "next/navigation";
 
 const Signup = () => {
   const value = {
@@ -19,7 +20,8 @@ const Signup = () => {
 
   const [values, setValues] = useState(value);
   const randomNumber = generateRandomNumber();
-  const { signup, googleLogin, githubLogin } = useAuth();
+  const { signup, googleLogin, githubLogin, isUser } = useAuth();
+  const router = useRouter();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -40,6 +42,10 @@ const Signup = () => {
   const handleGitHubLogin = () => {
     githubLogin(randomNumber);
   };
+
+  if (isUser()) {
+    router.push("/home");
+  }
 
   return (
     <div className={s.container}>

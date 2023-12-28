@@ -44,7 +44,7 @@ interface IAuthenticationService {
     name: string,
     account: number
   ) => Promise<void>;
-  logout: () => void;
+  logOut: () => void;
   googleLogin: (account: number) => Promise<void>;
   githubLogin: (account: number) => Promise<void>;
   checkPin: (pin: string) => boolean;
@@ -57,6 +57,7 @@ interface IAuthenticationService {
     data: any;
     isValid: boolean;
   }>;
+  isUser: () => boolean;
 }
 
 interface ITransaction {
@@ -90,11 +91,11 @@ export const value = {
   profilePicture: "",
 };
 
-const dummyAsyncFunction: (...args: any[]) => Promise<void> = async () => {
-  // This function acts as a placeholder and does nothing
-};
+const dummyAsyncFunction: (...args: any[]) => Promise<void> = async () => {};
 
 const checkPinDummy: (pin: string) => boolean = (pin) => false;
+
+const isUserDummy: () => boolean = () => false;
 
 const isAccountValidDummy: (
   account: number
@@ -108,13 +109,14 @@ export const AuthContext = createContext<IAuthenticationService>({
   setUser: dummyAsyncFunction,
   login: dummyAsyncFunction,
   signup: dummyAsyncFunction,
-  logout: dummyAsyncFunction,
+  logOut: dummyAsyncFunction,
   googleLogin: dummyAsyncFunction,
   githubLogin: dummyAsyncFunction,
   checkPin: checkPinDummy,
   setUserDocument: dummyAsyncFunction,
   handleTransferFunds: dummyAsyncFunction,
   isAccountValid: isAccountValidDummy,
+  isUser: isUserDummy,
 });
 export const useAuth = () => useContext<IAuthenticationService>(AuthContext);
 
@@ -383,12 +385,22 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const logout = async () => {
+  const logOut = async () => {
     try {
       await signOut(auth);
+      setUser(null);
       toast.success("logged out successfully");
     } catch (error) {
       console.error("Error signing out:", error);
+      toast.error('"Error signing out');
+    }
+  };
+
+  const isUser = (): boolean => {
+    if (user) {
+      return true;
+    } else {
+      return false;
     }
   };
 
@@ -399,13 +411,14 @@ const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
         setUser,
         login,
         signup,
-        logout,
+        logOut,
         googleLogin,
         githubLogin,
         checkPin,
         setUserDocument,
         handleTransferFunds,
         isAccountValid,
+        isUser,
       }}
     >
       {loading ? (

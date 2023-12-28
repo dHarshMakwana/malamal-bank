@@ -49,6 +49,14 @@
           gap: 0.5rem;
         }
       }
+
+      .logout {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        color: red;
+      }
     }
   }
 }
