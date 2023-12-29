@@ -14,7 +14,9 @@ const ProfilePicture = () => {
   }, [user]);
 
   useEffect(() => {
-    toast.success('Click on Profile Picture to change it')
+    toast('Click on Profile Picture to change it',{
+      icon: 'ℹ️'
+    })
   }, []);
 
   const readURL = () => {
