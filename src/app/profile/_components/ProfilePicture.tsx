@@ -2,6 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import s from "../_styles/profile.module.scss";
 import { useAuth } from "@/lib/AuthContext.context";
+import { toast } from "react-hot-toast";
 
 const ProfilePicture = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -9,25 +10,31 @@ const ProfilePicture = () => {
   const [image, setImage] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedImage = localStorage.getItem("profilePicture");
-    if (savedImage) {
-      setImage(savedImage);
-    } else {
-      setImage(user?.profilePicture || null);
-    }
+    setImage(user?.profilePicture);
   }, [user]);
+
+  useEffect(() => {
+    toast('Click on Profile Picture to change it',{
+      icon: 'ℹ️'
+    })
+  }, []);
 
   const readURL = () => {
     const input = fileInputRef.current;
     if (input && input.files && input.files[0]) {
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = function (e) { 
         const imageData = e.target?.result as string;
         setImage(imageData);
-        localStorage.setItem("profilePicture", imageData); // Save to local storage
       };
       reader.readAsDataURL(input.files[0]);
     }
+  };
+
+  const handleReset = () => {
+    setImage(
+      `https://api.multiavatar.com/${user?.account}.png?apikey=O8yIjl9JkQD60v`
+    );
   };
 
   const handleImageUploadChange = () => {
@@ -36,12 +43,8 @@ const ProfilePicture = () => {
 
   return (
     user?.profilePicture && (
-      <>
-        <label
-          title="click to change avatar"
-          htmlFor="imageUpload"
-          className={s.avatarUpload}
-        >
+      <div className={s.imgContainer}>
+        <label htmlFor="imageUpload" className={s.avatarUpload}>
           <div className={s.avatarEdit}>
             <input
               type="file"
@@ -59,7 +62,10 @@ const ProfilePicture = () => {
             ></div>
           </div>
         </label>
-      </>
+        <div className={s.reset} onClick={handleReset}>
+          reset to default 🔄
+        </div>
+      </div>
     )
   );
 };

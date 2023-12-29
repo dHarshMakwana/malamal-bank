@@ -5,7 +5,7 @@ import { ToastIcon, Toaster, toast } from "react-hot-toast";
 import s from "./toast.module.scss";
 
 const CustomToaster = (): JSX.Element => (
-  <Toaster position="bottom-right">
+  <Toaster position="top-right">
     {(t) => {
       const icon = <ToastIcon toast={t} />;
 
