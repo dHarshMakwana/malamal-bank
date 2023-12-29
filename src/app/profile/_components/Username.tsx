@@ -1,9 +1,18 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import Input from "@/components/Input";
-import React, { useState } from "react";
+import { useAuth } from "@/lib/AuthContext.context";
 
 const Username = () => {
-  const [username, setUsername] = useState("");
+  const { user } = useAuth();
+  const [username, setUsername] = useState(user?.name || "t5t");
+
+  useEffect(() => {
+    if (user?.name) {
+      setUsername(user?.name);
+    }
+  }, [user]);
+
   return (
     <div>
       <Input
@@ -14,6 +23,5 @@ const Username = () => {
     </div>
   );
 };
-
 
 export default Username;

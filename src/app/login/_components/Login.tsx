@@ -26,7 +26,7 @@ const Login = () => {
   const router = useRouter();
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
-  const { login } = useAuth();
+  const { login, isUser } = useAuth();
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;
@@ -57,6 +57,10 @@ const Login = () => {
       router.push("/home");
     });
   };
+
+  if (isUser()) {
+  router.push("/home");
+  }
 
   return (
     <div className={s.container}>
@@ -89,7 +93,7 @@ const Login = () => {
             Log In
           </div>
           <div className={s.link}>
-            Already have an account? <Link href="/signup">Sign up</Link>
+           New Here? <Link href="/signup">Sign up</Link>
           </div>
         </div>
         <span>Or connect with</span>
