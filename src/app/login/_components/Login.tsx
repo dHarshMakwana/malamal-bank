@@ -93,7 +93,7 @@ const Login = () => {
             Log In
           </div>
           <div className={s.link}>
-            Already have an account? <Link href="/signup">Sign up</Link>
+           New Here? <Link href="/signup">Sign up</Link>
           </div>
         </div>
         <span>Or connect with</span>

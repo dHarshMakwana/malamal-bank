@@ -13,7 +13,7 @@ interface InputProps {
   errorMessage?: string;
   inputRef?: any;
   autoFocus?: boolean;
-  maxLength?: number; // Add maxLength property
+  maxLength?: number;
   readOnly?: boolean;
 }
 
@@ -28,8 +28,8 @@ const Input: React.FC<InputProps> = ({
   errorMessage = "",
   inputRef = null,
   autoFocus = false,
-  readOnly = false
-  // maxLength = 4, // Set the default maxLength to 4 for "pin" type
+  readOnly = false,
+  maxLength,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -63,7 +63,7 @@ const Input: React.FC<InputProps> = ({
       <p className={s.label}>{label}</p>
       <input
         type={showPassword ? "text" : type == "pin" ? "password" : type}
-        onChange={handleChange} // Use the handleChange function
+        onChange={handleChange} 
         onFocus={handleFocus}
         onBlur={handleBlur}
         className={s.input}
@@ -73,6 +73,7 @@ const Input: React.FC<InputProps> = ({
         ref={inputRef}
         autoFocus={autoFocus}
         readOnly={readOnly}
+        maxLength={maxLength}
       />
       {error && <p className={s.labelError}>{errorMessage}</p>}
       {type === "password" || type === "pin" ? (
