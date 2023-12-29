@@ -11,11 +11,13 @@ import {
   AiOutlineHistory,
 } from "react-icons/ai";
 import Link from "next/link";
+import { useAuth } from "@/lib/AuthContext.context";
 
 interface HamburgerSidebarProps {}
 
 const Burger: FC<HamburgerSidebarProps> = ({}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { logOut } = useAuth();
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -66,6 +68,16 @@ const Burger: FC<HamburgerSidebarProps> = ({}) => {
                   </motion.div>
                 ))}
               </div>
+              <motion.div
+                initial={{ x: -100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -100, opacity: 0 }}
+                transition={{ delay: 1 }}
+                className={s.logout}
+                onClick={logOut}
+              >
+                Log Out
+              </motion.div>
             </div>
           </motion.div>
         )}
