@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import React, { Suspense } from "react";
 import CustomToaster from "@/components/Toast/Toast";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: "Malamal Bank",
@@ -22,6 +23,7 @@ export default function RootLayout({
           <CustomToaster />
           <AuthContextProvider>{children}</AuthContextProvider>
           <Analytics />
+          <SpeedInsights />
         </Suspense>
       </body>
     </html>
