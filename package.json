@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "clean": "eslint --fix ./src"
   },
   "dependencies": {
     "@types/node": "20.5.0",
@@ -15,7 +16,6 @@
     "@vercel/analytics": "^1.0.2",
     "@vercel/speed-insights": "^1.0.2",
     "axios": "^1.5.0",
-    "eslint": "8.47.0",
     "eslint-config-next": "13.4.16",
     "firebase": "^10.2.0",
     "framer-motion": "^10.16.0",
@@ -27,5 +27,9 @@
     "sass": "^1.65.1",
     "typescript": "5.1.6",
     "vercel": "^32.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-plugin-unused-imports": "^3.0.0"
   }
 }

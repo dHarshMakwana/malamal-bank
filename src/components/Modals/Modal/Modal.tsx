@@ -1,7 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import s from "./modal.module.scss";
-import Portal from "../../Portal";
 
 export interface ModalProps {
   open: boolean;
