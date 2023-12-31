@@ -1,9 +1,8 @@
 import Input from "@/components/Input";
 import { User, useAuth } from "@/lib/AuthContext.context";
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useState } from "react";
 import Modal, { ModalProps } from "../Modal";
 import s from "./modal.module.scss";
-import { toast } from "react-hot-toast";
 import Image from "next/image";
 
 interface TransferProps extends ModalProps {

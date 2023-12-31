@@ -3,7 +3,6 @@ import Input from "@/components/Input/Input";
 import React, { useEffect, useState } from "react";
 import s from "../_styles/settings.module.scss";
 import { randomPinGenerator } from "@/utils/randomPinGenerator";
-import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/lib/AuthContext.context";
 
