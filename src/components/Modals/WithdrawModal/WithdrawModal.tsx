@@ -1,15 +1,9 @@
 import React, { FC, useState } from "react";
-import Modal, { ModalProps } from "../Modal";
+import Modal from "../Modal";
 import Input from "@components/Input";
 import s from "./modal.module.scss";
 import { useAuth } from "@/lib/AuthContext.context";
-
-interface WithdrawProps extends ModalProps {
-  userId: string;
-  balance: number;
-  history: object[];
-  onSuccessWithdraw: (newBalance: number, newHistory: object[]) => void;
-}
+import { WithdrawProps } from "../type";
 
 const WithdrawModal: FC<WithdrawProps> = ({
   onClose,
@@ -17,7 +11,7 @@ const WithdrawModal: FC<WithdrawProps> = ({
   userId,
   balance,
   history,
-  onSuccessWithdraw,
+  onSuccess,
 }) => {
   const [amount, setAmount] = useState<number>();
   const [error, setError] = useState({
@@ -51,7 +45,7 @@ const WithdrawModal: FC<WithdrawProps> = ({
               },
             ],
           }).then(() => {
-            onSuccessWithdraw(balance - amount, [
+            onSuccess(balance - amount, [
               ...history,
               {
                 type: "withdraw",

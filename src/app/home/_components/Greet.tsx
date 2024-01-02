@@ -1,9 +1,6 @@
 import React, { FC } from "react";
 import s from "../_styles/home.module.scss";
-
-interface GreetProps {
-  name: string;
-}
+import { GreetProps } from "../_types/type";
 
 const Greet: FC<GreetProps> = ({ name }) => {
   return (

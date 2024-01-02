@@ -16,6 +16,7 @@
     "@vercel/analytics": "^1.0.2",
     "@vercel/speed-insights": "^1.0.2",
     "axios": "^1.5.0",
+    "encoding": "^0.1.13",
     "eslint-config-next": "13.4.16",
     "firebase": "^10.2.0",
     "framer-motion": "^10.16.0",

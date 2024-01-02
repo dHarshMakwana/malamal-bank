@@ -1,25 +1,20 @@
 import React, { FC, useEffect, useRef, useState } from "react";
-import Modal, { ModalProps } from "../Modal";
+import Modal from "../Modal";
 import Input from "@components/Input";
 import s from "./modal.module.scss";
-import { useAuth } from "@/lib/AuthContext.context";
-
-interface DepositProps extends ModalProps {
-  balance: number;
-  history: object[];
-  onSuccessDeposit: (newBalance: number, newHistory: object[]) => void;
-}
+import { ITransaction, useAuth } from "@/lib/AuthContext.context";
+import { DepositProps } from "../type";
 
 const DepositModal: FC<DepositProps> = ({
   onClose,
   open,
   balance,
   history,
-  onSuccessDeposit,
+  onSuccess,
 }) => {
   const { setUserDocument } = useAuth();
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [amount, setAmount] = useState<string>(""); // Change to string type
+  const [amount, setAmount] = useState<string>("");
   const [error, setError] = useState({
     isError: false,
     message: "",
@@ -42,38 +37,48 @@ const DepositModal: FC<DepositProps> = ({
     }
   };
 
+  const validateAmount = (amount: string) => {
+    const parsedAmount = parseFloat(amount);
+    if (parsedAmount > 50000 || parsedAmount < 0) {
+      return {
+        isValid: false,
+        errorMessage: "You can't deposit more than 50000 or less than 0.",
+      };
+    }
+    return { isValid: true };
+  };
+
+  const addToTransactionHistory = async (
+    parsedAmount: number,
+    balance: number,
+    history: ITransaction[]
+  ) => {
+    const updatedHistory: ITransaction[] = [
+      ...history,
+      {
+        type: "deposit",
+        amount: parsedAmount,
+        date: new Date(),
+      },
+    ];
+    await setUserDocument({
+      balance: balance + +parsedAmount,
+      history: updatedHistory,
+    });
+    onSuccess(balance + parsedAmount, updatedHistory);
+    onClose();
+  };
+
   const handleSubmit = () => {
     if (amount) {
-      const parsedAmount = parseFloat(amount);
-      if (parsedAmount > 50000 || parsedAmount < 0) {
-        setError({
-          isError: true,
-          message: "You can't deposit more than 50000 or less than 0.",
-        });
+      const { isValid, errorMessage } = validateAmount(amount);
+      if (!isValid) {
+        setError({ isError: true, message: errorMessage ?? "" });
       } else {
         setError({ isError: false, message: "" });
-        setUserDocument({
-          balance: balance + parsedAmount,
-          history: [
-            ...history,
-            {
-              type: "deposit",
-              amount: parsedAmount,
-              date: new Date(),
-            },
-          ],
-        }).then(() => {
-          onSuccessDeposit(balance + parsedAmount, [
-            ...history,
-            {
-              type: "deposit",
-              amount: parsedAmount,
-              date: new Date(),
-            },
-          ]);
 
-          onClose();
-        });
+        const parsedAmount = parseFloat(amount);
+        addToTransactionHistory(parsedAmount, balance, history);
       }
     }
   };

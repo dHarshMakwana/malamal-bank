@@ -1,21 +1,7 @@
 import React, { useState } from "react";
 import s from "./input.module.scss";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-
-interface InputProps {
-  label: string;
-  placeholder?: string;
-  onChange?: (value: React.ChangeEvent<HTMLInputElement>) => void;
-  error?: boolean;
-  type?: "text" | "password" | "pin" | "number";
-  value?: string | number;
-  name?: string;
-  errorMessage?: string;
-  inputRef?: any;
-  autoFocus?: boolean;
-  maxLength?: number;
-  readOnly?: boolean;
-}
+import { InputProps } from "./type";
 
 const Input: React.FC<InputProps> = ({
   label,
@@ -63,7 +49,7 @@ const Input: React.FC<InputProps> = ({
       <p className={s.label}>{label}</p>
       <input
         type={showPassword ? "text" : type == "pin" ? "password" : type}
-        onChange={handleChange} 
+        onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
         className={s.input}

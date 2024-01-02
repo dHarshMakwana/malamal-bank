@@ -5,14 +5,6 @@ const Home = dynamic(() => import("./_components/Home"), {
   ssr: false,
 });
 
-// AiOutlineDownload;
-// AiOutlineUpload;
-// BiTransferAlt;
-
-// AiOutlineVerticalAlignBottom;
-// AiOutlineVerticalAlignTop;
-// BiTransfer;
-
 const home = () => {
   return <Home />;
 };

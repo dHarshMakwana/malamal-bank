@@ -1,18 +1,15 @@
 import Input from "@/components/Input";
 import { User, useAuth } from "@/lib/AuthContext.context";
 import React, { FC, useState } from "react";
-import Modal, { ModalProps } from "../Modal";
+import Modal from "../Modal";
 import s from "./modal.module.scss";
 import Image from "next/image";
-
-interface TransferProps extends ModalProps {
-  onSuccessTransfer?: (newBalance: number, newHistory: object[]) => void;
-}
+import { TransferProps } from "../type";
 
 const TransferModal: FC<TransferProps> = ({
   onClose,
   open,
-  onSuccessTransfer,
+  onSuccess,
 }) => {
   const { handleTransferFunds, isAccountValid } = useAuth();
   const [amount, setAmount] = useState<string>("");
