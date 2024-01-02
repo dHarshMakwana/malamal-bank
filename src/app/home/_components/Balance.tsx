@@ -1,9 +1,6 @@
 import React, { FC } from "react";
 import s from "../_styles/home.module.scss";
-
-interface BalanceProps {
-  balance: number;
-}
+import { BalanceProps } from "../_types/type";
 
 const Balance: FC<BalanceProps> = ({ balance }) => {
   return (

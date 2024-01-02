@@ -4,17 +4,10 @@ import s from "../_styles/home.module.scss";
 import Greet from "./Greet";
 import Balance from "./Balance";
 import History from "./History";
-import dynamic from "next/dynamic";
 import Header from "@/components/Header";
 import { User, useAuth } from "@/lib/AuthContext.context";
-
-const DepositModal = dynamic(() => import("@modals/DepositModal"), {
-  ssr: false,
-});
-
-const TransferModal = dynamic(() => import("@modals/TransferModal"), {
-  ssr: false,
-});
+import DepositModal from "@/components/Modals/DepositModal/DepositModal";
+import TransferModal from "@/components/Modals/TransferModal/TransferModal";
 
 const Home = () => {
   const [dipositOpen, setDepositOpen] = useState(false);
@@ -58,7 +51,7 @@ const Home = () => {
         onClose={handleDepositModal}
         balance={balance}
         history={history}
-        onSuccessDeposit={onSuccess}
+        onSuccess={onSuccess}
       />
       <TransferModal
         open={transferOpen}

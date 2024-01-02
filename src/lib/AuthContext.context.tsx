@@ -60,7 +60,7 @@ interface IAuthenticationService {
   isUser: () => boolean;
 }
 
-interface ITransaction {
+export interface ITransaction {
   amount: number;
   date: Date;
   type: string;
@@ -74,7 +74,7 @@ export interface User {
   id: string;
   account: number;
   balance: number;
-  history: any[];
+  history: ITransaction[];
   isVerified: boolean;
   pin: null | string;
   profilePicture: string;
@@ -90,6 +90,9 @@ export const value = {
   pin: null,
   profilePicture: "",
 };
+
+export const TRANSFER_IN = "transfer in";
+export const DEPOSIT = "deposit";
 
 const dummyAsyncFunction: (...args: any[]) => Promise<void> = async () => {};
 
