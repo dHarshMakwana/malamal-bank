@@ -1,0 +1,14 @@
+.container {
+  max-width: 378px;
+  margin: 0 auto;
+  background-color: black;
+  height: 100vh;
+  padding: 2rem;
+  display: flex;
+  justify-self: flex-start;
+  justify-content: space-evenly;
+  gap: 1rem;
+  align-items: center;
+  flex-direction: column;
+  color: white;
+}
