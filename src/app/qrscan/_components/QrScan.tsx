@@ -7,7 +7,7 @@ const QrScan = () => {
   return (
     <>
       <div className={s.container}>
-        <Reader />
+        {/* <Reader /> */}
         <Scanner />
       </div>
     </>
